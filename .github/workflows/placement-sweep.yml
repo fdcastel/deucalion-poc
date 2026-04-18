@@ -104,7 +104,7 @@ jobs:
             PLACEMENT_COLO=""
             SIGNAL_SOURCE="unknown"
             if [ -n "$CF_PLACEMENT" ]; then
-              PLACEMENT_COLO=$(echo "$CF_PLACEMENT" | sed 's/.*-//')
+              PLACEMENT_COLO=$(python3 -c "import re,sys; h=sys.argv[1]; m=re.findall(r'[A-Z]{3}', h); print(m[-1] if m else '')" "$CF_PLACEMENT")
               SIGNAL_SOURCE="cf-placement"
             elif [ -n "$CF_RAY" ] && echo "$CF_RAY" | grep -q -- '-'; then
               PLACEMENT_COLO=$(echo "$CF_RAY" | sed 's/.*-//')
@@ -112,6 +112,10 @@ jobs:
             else
               PLACEMENT_COLO="$INGRESS_COLO"
               SIGNAL_SOURCE="request.cf.colo"
+            fi
+
+            if [ -z "$PLACEMENT_COLO" ]; then
+              PLACEMENT_COLO="unknown"
             fi
 
             EFFECTIVE_COLOS+=("$PLACEMENT_COLO")
@@ -123,10 +127,10 @@ jobs:
             sleep 2
           done
 
-          EFFECTIVE_JSON=$(printf '%s\n' "${EFFECTIVE_COLOS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
-          INGRESS_JSON=$(printf '%s\n' "${INGRESS_COLOS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
-          PLACEMENT_HEADERS_JSON=$(printf '%s\n' "${PLACEMENT_HEADERS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
-          SIGNAL_SOURCES_JSON=$(printf '%s\n' "${SIGNAL_SOURCES[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+          EFFECTIVE_JSON=$(printf '%s\n' "${EFFECTIVE_COLOS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() or 'unknown' for l in sys.stdin]))")
+          INGRESS_JSON=$(printf '%s\n' "${INGRESS_COLOS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() or 'unknown' for l in sys.stdin]))")
+          PLACEMENT_HEADERS_JSON=$(printf '%s\n' "${PLACEMENT_HEADERS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() or 'none' for l in sys.stdin]))")
+          SIGNAL_SOURCES_JSON=$(printf '%s\n' "${SIGNAL_SOURCES[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() or 'unknown' for l in sys.stdin]))")
 
           echo "effective_colos_json=$EFFECTIVE_JSON" >> "$GITHUB_OUTPUT"
           echo "ingress_colos_json=$INGRESS_JSON" >> "$GITHUB_OUTPUT"
