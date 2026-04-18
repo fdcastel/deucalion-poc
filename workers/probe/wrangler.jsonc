@@ -1,0 +1,11 @@
+{
+  "name": "deucalion-poc-probe",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-01",
+  "placement": {
+    "mode": "smart",
+    "hint": {
+      "host": "cloudflare.com:443"
+    }
+  }
+}
