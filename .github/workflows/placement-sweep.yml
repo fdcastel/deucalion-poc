@@ -67,6 +67,19 @@ jobs:
       - name: Warm up deployment
         run: sleep 30
 
+      - name: Read placement status (best-effort)
+        id: placement_status
+        run: |
+          IATA_LOWER=$(echo "$IATA" | tr '[:upper:]' '[:lower:]')
+          SERVICE_NAME="deucalion-poc-probe-sweep-${IATA_LOWER}"
+          STATUS_JSON=$(curl -sf \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/services/${SERVICE_NAME}" \
+            || echo '{}')
+
+          PLACEMENT_STATUS=$(echo "$STATUS_JSON" | python3 -c "import sys,json; d=json.load(sys.stdin); print((((d.get('result') or {}).get('placement') or {}).get('status')) or 'unknown')" 2>/dev/null || echo "unknown")
+          echo "placement_status=${PLACEMENT_STATUS}" >> "$GITHUB_OUTPUT"
+
       - name: Probe /health 10 times
         id: probe
         run: |
@@ -74,16 +87,51 @@ jobs:
           URL="https://deucalion-poc-probe-sweep-${IATA_LOWER}.${WORKERS_SUBDOMAIN}.workers.dev/health"
           echo "Probing $URL"
 
-          COLLECTED=()
+          EFFECTIVE_COLOS=()
+          INGRESS_COLOS=()
+          PLACEMENT_HEADERS=()
+          SIGNAL_SOURCES=()
           for _ in $(seq 1 10); do
-            BODY=$(curl -sf "$URL")
-            COLO=$(echo "$BODY" | python3 -c "import sys,json; print(json.load(sys.stdin).get('colo','unknown'))")
-            COLLECTED+=("$COLO")
+            HEADERS_FILE=$(mktemp)
+            BODY_FILE=$(mktemp)
+
+            curl -sfS -D "$HEADERS_FILE" -o "$BODY_FILE" "$URL"
+
+            INGRESS_COLO=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1], encoding='utf-8')).get('colo','unknown'))" "$BODY_FILE" 2>/dev/null || echo "unknown")
+            CF_PLACEMENT=$(grep -i '^cf-placement:' "$HEADERS_FILE" | tail -n1 | cut -d':' -f2- | tr -d '\r' | sed 's/^ *//')
+            CF_RAY=$(grep -i '^cf-ray:' "$HEADERS_FILE" | tail -n1 | awk '{print $2}' | tr -d '\r')
+
+            PLACEMENT_COLO=""
+            SIGNAL_SOURCE="unknown"
+            if [ -n "$CF_PLACEMENT" ]; then
+              PLACEMENT_COLO=$(echo "$CF_PLACEMENT" | sed 's/.*-//')
+              SIGNAL_SOURCE="cf-placement"
+            elif [ -n "$CF_RAY" ] && echo "$CF_RAY" | grep -q -- '-'; then
+              PLACEMENT_COLO=$(echo "$CF_RAY" | sed 's/.*-//')
+              SIGNAL_SOURCE="cf-ray"
+            else
+              PLACEMENT_COLO="$INGRESS_COLO"
+              SIGNAL_SOURCE="request.cf.colo"
+            fi
+
+            EFFECTIVE_COLOS+=("$PLACEMENT_COLO")
+            INGRESS_COLOS+=("$INGRESS_COLO")
+            PLACEMENT_HEADERS+=("${CF_PLACEMENT:-none}")
+            SIGNAL_SOURCES+=("$SIGNAL_SOURCE")
+
+            rm -f "$HEADERS_FILE" "$BODY_FILE"
             sleep 2
           done
 
-          OBSERVED_JSON=$(printf '%s\n' "${COLLECTED[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
-          echo "observed_json=$OBSERVED_JSON" >> "$GITHUB_OUTPUT"
+          EFFECTIVE_JSON=$(printf '%s\n' "${EFFECTIVE_COLOS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+          INGRESS_JSON=$(printf '%s\n' "${INGRESS_COLOS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+          PLACEMENT_HEADERS_JSON=$(printf '%s\n' "${PLACEMENT_HEADERS[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+          SIGNAL_SOURCES_JSON=$(printf '%s\n' "${SIGNAL_SOURCES[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+
+          echo "effective_colos_json=$EFFECTIVE_JSON" >> "$GITHUB_OUTPUT"
+          echo "ingress_colos_json=$INGRESS_JSON" >> "$GITHUB_OUTPUT"
+          echo "placement_headers_json=$PLACEMENT_HEADERS_JSON" >> "$GITHUB_OUTPUT"
+          echo "signal_sources_json=$SIGNAL_SOURCES_JSON" >> "$GITHUB_OUTPUT"
 
       - name: Write per-city result artifact
         run: |
@@ -95,7 +143,11 @@ jobs:
             "expectedColo": "$EXPECTED_COLO",
             "hintType": "$HINT_TYPE",
             "hintValue": "$HINT_VALUE",
-            "observedColos": ${{ steps.probe.outputs.observed_json }}
+            "placementStatus": "${{ steps.placement_status.outputs.placement_status }}",
+            "observedPlacementColos": ${{ steps.probe.outputs.effective_colos_json }},
+            "observedIngressColos": ${{ steps.probe.outputs.ingress_colos_json }},
+            "observedPlacementHeaders": ${{ steps.probe.outputs.placement_headers_json }},
+            "signalSources": ${{ steps.probe.outputs.signal_sources_json }}
           }
           EOF
 
@@ -147,11 +199,14 @@ jobs:
           md = []
           md.append('# Placement Sweep Results')
           md.append('')
-          md.append('| City | IATA | Hint | Observed colos | Exact match | Partial match | Loose match |')
-          md.append('|------|------|------|----------------|------------|---------------|-------------|')
+          md.append('| City | IATA | Hint | Placement status | Signal quality | Observed placement colos | Observed ingress colos | Exact match | Partial match | Loose match | Consistent | Failure |')
+          md.append('|------|------|------|------------------|----------------|---------------------------|----------------------|------------|---------------|-------------|------------|---------|')
 
           for r in rows:
-            observed = r.get('observedColos', [])
+            observed = r.get('observedPlacementColos') or r.get('observedColos', [])
+            ingress = r.get('observedIngressColos', [])
+            placement_headers = r.get('observedPlacementHeaders', [])
+            signal_sources = r.get('signalSources', [])
             expected = r['expectedColo']
             counts = Counter(observed)
             majority = counts.most_common(1)[0][0] if counts else 'unknown'
@@ -159,7 +214,11 @@ jobs:
             exact_match = len(observed) > 0 and all(c == expected for c in observed)
             partial_match = (not exact_match) and (majority == expected)
             loose_match = any(c in brazilian_colos for c in observed)
+            consistent = len(set(observed)) == 1 if observed else False
             only_foreign = len(observed) > 0 and all(c not in brazilian_colos for c in observed)
+            # Per Phase 9 criteria: mixed outcomes are considered failures.
+            mixed = len(set(observed)) > 1 if observed else False
+            is_failure = (len(observed) == 0) or mixed or only_foreign
 
             if exact_match:
               exact += 1
@@ -167,16 +226,22 @@ jobs:
               partial += 1
             elif loose_match:
               loose += 1
-            else:
+            if is_failure:
               failure += 1
 
             hint = f"{r['hintType']}={r['hintValue']}"
             obs = ', '.join(observed) if observed else '(none)'
+            ingress_obs = ', '.join(ingress) if ingress else '(none)'
+            placement_seen = sum(1 for h in placement_headers if h and h != 'none')
+            preferred_source = Counter(signal_sources).most_common(1)[0][0] if signal_sources else 'unknown'
+            signal_quality = f"cf-placement {placement_seen}/10; source={preferred_source}"
             md.append(
-              f"| {r['city']} | {r['iata']} | `{hint}` | `{obs}` | {'✅' if exact_match else '❌'} | {'✅' if partial_match else '❌'} | {'✅' if loose_match else '❌'} |"
+              f"| {r['city']} | {r['iata']} | `{hint}` | `{r.get('placementStatus', 'unknown')}` | {signal_quality} | `{obs}` | `{ingress_obs}` | {'✅' if exact_match else '❌'} | {'✅' if partial_match else '❌'} | {'✅' if loose_match else '❌'} | {'✅' if consistent else '❌'} | {'✅' if is_failure else '❌'} |"
             )
             if only_foreign:
-              md.append(f"|  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |")
+              md.append(f"|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |")
+            elif mixed:
+              md.append(f"|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |")
 
           total = len(rows)
           md.append('')
@@ -192,7 +257,8 @@ jobs:
           md.append('- Exact match: all 10 observed colos equal expected IATA.')
           md.append('- Partial match: majority colo equals expected IATA.')
           md.append('- Loose match: at least one observed colo is a known Brazilian PoP IATA, even if not the expected city.')
-          md.append('- Failure: no observed Brazilian colo for the city (for example, only foreign colos or empty observations).')
+          md.append('- Failure: non-Brazilian only, empty observations, or mixed observed placement colos.')
+          md.append('- Signal quality: reports how many of the 10 samples had a cf-placement header and which source was used to derive placement colo.')
 
           with open('PLACEMENT_SWEEP_RESULTS.md', 'w', encoding='utf-8') as f:
             f.write('\n'.join(md) + '\n')
