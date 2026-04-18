@@ -159,14 +159,14 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 0.1 | Create `deucalion-v4-poc` GitHub repository | Public or private; enable Actions | ❌ OPEN |
-| 0.2 | Initialize pnpm monorepo with `pnpm-workspace.yaml` | Node 20+, pnpm 9+ | ❌ OPEN |
-| 0.3 | Add `tsconfig.base.json` with strict settings and `@cloudflare/workers-types` | Base config shared by all packages/workers | ❌ OPEN |
-| 0.4 | Add ESLint + Prettier config | Single config at root; extends recommended rules | ❌ OPEN |
-| 0.5 | Add Vitest config at root for unit tests | `pool: 'forks'`, coverage via `v8` | ❌ OPEN |
-| 0.6 | Add GitHub Actions `ci.yml` — runs lint, typecheck, unit tests on every push | No deployment in this workflow | ❌ OPEN |
+| 0.1 | Create `deucalion-v4-poc` GitHub repository | Public or private; enable Actions | ✅ RESOLVED |
+| 0.2 | Initialize pnpm monorepo with `pnpm-workspace.yaml` | Node 20+, pnpm 9+ | ✅ RESOLVED |
+| 0.3 | Add `tsconfig.base.json` with strict settings and `@cloudflare/workers-types` | Base config shared by all packages/workers | ✅ RESOLVED |
+| 0.4 | Add ESLint + Prettier config | Single config at root; extends recommended rules | ✅ RESOLVED |
+| 0.5 | Add Vitest config at root for unit tests | `pool: 'forks'`, coverage via `v8` | ✅ RESOLVED |
+| 0.6 | Add GitHub Actions `ci.yml` — runs lint, typecheck, unit tests on every push | No deployment in this workflow | ✅ RESOLVED |
 | 0.7 | Add Cloudflare secrets to GitHub repository | `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `WAE_API_TOKEN` (Account Analytics Read) | ❌ OPEN |
-| 0.8 | Add `.dev.vars.example` files per worker with required env var names | Documents what secrets are needed locally | ❌ OPEN |
+| 0.8 | Add `.dev.vars.example` files per worker with required env var names | Documents what secrets are needed locally | ✅ RESOLVED |
 
 ---
 
@@ -174,9 +174,9 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 1.1 | Define `CheckResult` and `MonitorConfig` TypeScript types in `types.ts` | Fields: `monitorId`, `probeId`, `startedAt`, `finishedAt`, `latencyMs`, `state`, `statusCode`, `errorMessage`, `placementRequested`, `placementObserved` | ❌ OPEN |
-| 1.2 | Implement `runHttpCheck(monitor, signal)` in `check.ts` | Uses `fetch()`, measures latency, returns `CheckResult`; respects `AbortSignal` for timeout | ❌ OPEN |
-| 1.3 | Write unit tests for `runHttpCheck` | Mock `fetch` via Vitest; test: 200 OK → `up`, non-200 → `down`, timeout → `down` with `errorCode: 'TIMEOUT'` | ❌ OPEN |
+| 1.1 | Define `CheckResult` and `MonitorConfig` TypeScript types in `types.ts` | Fields: `monitorId`, `probeId`, `startedAt`, `finishedAt`, `latencyMs`, `state`, `statusCode`, `errorMessage`, `placementRequested`, `placementObserved` | ✅ RESOLVED |
+| 1.2 | Implement `runHttpCheck(monitor, signal)` in `check.ts` | Uses `fetch()`, measures latency, returns `CheckResult`; respects `AbortSignal` for timeout | ✅ RESOLVED |
+| 1.3 | Write unit tests for `runHttpCheck` | Mock `fetch` via Vitest; test: 200 OK → `up`, non-200 → `down`, timeout → `down` with `errorCode: 'TIMEOUT'` | ✅ RESOLVED |
 
 ---
 
@@ -184,11 +184,11 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 2.1 | Scaffold probe Worker with `wrangler.jsonc` | Set `placement: { mode: "smart", hint: { host: "cloudflare.com:443" } }` | ❌ OPEN |
-| 2.2 | Implement `POST /run-batch` handler | Accepts `{ monitors: MonitorConfig[], probeId: string }`, runs checks concurrently with `Promise.allSettled`, returns `CheckResult[]` | ❌ OPEN |
-| 2.3 | Capture and attach placement metadata to each result | Read `request.cf.colo`, `request.cf.country`, and `CF-Ray` header; set `placementObserved` field | ❌ OPEN |
-| 2.4 | Add `GET /health` endpoint | Returns `{ ok: true, colo: string, timestamp: string }` | ❌ OPEN |
-| 2.5 | Deploy probe worker via GitHub Actions `deploy.yml` | Use `wrangler deploy` step; output deployed URL as step output | ❌ OPEN |
+| 2.1 | Scaffold probe Worker with `wrangler.jsonc` | Set `placement: { mode: "smart", hint: { host: "cloudflare.com:443" } }` | ✅ RESOLVED |
+| 2.2 | Implement `POST /run-batch` handler | Accepts `{ monitors: MonitorConfig[], probeId: string }`, runs checks concurrently with `Promise.allSettled`, returns `CheckResult[]` | ✅ RESOLVED |
+| 2.3 | Capture and attach placement metadata to each result | Read `request.cf.colo`, `request.cf.country`, and `CF-Ray` header; set `placementObserved` field | ✅ RESOLVED |
+| 2.4 | Add `GET /health` endpoint | Returns `{ ok: true, colo: string, timestamp: string }` | ✅ RESOLVED |
+| 2.5 | Deploy probe worker via GitHub Actions `deploy.yml` | Use `wrangler deploy` step; output deployed URL as step output | ✅ RESOLVED |
 
 ---
 
@@ -196,14 +196,14 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 3.1 | Write D1 migration `0001_initial.sql` | Tables: `check_results(id, monitor_id, probe_id, started_at, state, latency_ms, status_code, error_message, placement_observed)`, `monitor_states_current(monitor_id, probe_id, state, last_checked_at, latency_ms)` | ❌ OPEN |
-| 3.2 | Apply D1 migration in `deploy.yml` | `wrangler d1 migrations apply deucalion-poc-db` | ❌ OPEN |
-| 3.3 | Implement `AggregationDO` Durable Object class | Methods: `ingestResults(results: CheckResult[])` — writes to D1 and updates in-memory state map; `getStatus()` — returns current state map | ❌ OPEN |
-| 3.4 | Implement `GET /status` in `variant-a` | Calls DO `getStatus()` stub; returns `{ monitors: { [id]: { state, latencyMs, lastChecked, probes: {...} } } }` | ❌ OPEN |
-| 3.5 | Implement `GET /history/:monitorId` in `variant-a` | Queries D1 `check_results` for last 24 h; returns array sorted by `started_at` desc | ❌ OPEN |
-| 3.6 | Implement `GET /probe-info` in `variant-a` | Returns most recent `placement_observed` per probe from `check_results` | ❌ OPEN |
-| 3.7 | Deploy `variant-a` via `deploy.yml` | Bind D1 database and DO namespace in `wrangler.jsonc` | ❌ OPEN |
-| 3.8 | Add smoke test step to `deploy.yml` for Variant A | `curl /health`, `curl /status`, `curl /history/cf-web` — assert HTTP 200 and non-empty JSON body | ❌ OPEN |
+| 3.1 | Write D1 migration `0001_initial.sql` | Tables: `check_results(id, monitor_id, probe_id, started_at, state, latency_ms, status_code, error_message, placement_observed)`, `monitor_states_current(monitor_id, probe_id, state, last_checked_at, latency_ms)` | ✅ RESOLVED |
+| 3.2 | Apply D1 migration in `deploy.yml` | `wrangler d1 migrations apply deucalion-poc-db` | ✅ RESOLVED |
+| 3.3 | Implement `AggregationDO` Durable Object class | Methods: `ingestResults(results: CheckResult[])` — writes to D1 and updates in-memory state map; `getStatus()` — returns current state map | ✅ RESOLVED |
+| 3.4 | Implement `GET /status` in `variant-a` | Calls DO `getStatus()` stub; returns `{ monitors: { [id]: { state, latencyMs, lastChecked, probes: {...} } } }` | ✅ RESOLVED |
+| 3.5 | Implement `GET /history/:monitorId` in `variant-a` | Queries D1 `check_results` for last 24 h; returns array sorted by `started_at` desc | ✅ RESOLVED |
+| 3.6 | Implement `GET /probe-info` in `variant-a` | Returns most recent `placement_observed` per probe from `check_results` | ✅ RESOLVED |
+| 3.7 | Deploy `variant-a` via `deploy.yml` | Bind D1 database and DO namespace in `wrangler.jsonc` | ✅ RESOLVED |
+| 3.8 | Add smoke test step to `deploy.yml` for Variant A | `curl /health`, `curl /status`, `curl /history/cf-web` — assert HTTP 200 and non-empty JSON body | ✅ RESOLVED |
 
 ---
 
@@ -211,15 +211,15 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 4.1 | Configure WAE dataset binding in `variant-b/wrangler.jsonc` | `analytics_engine_datasets: [{ binding: "CHECK_RESULTS", dataset: "poc_check_results" }]` | ❌ OPEN |
-| 4.2 | Implement `writeCheckResults(results, env)` helper | Maps `CheckResult` to `writeDataPoint({ blobs: [monitorId, probeId, state, placementObserved, errorMessage], doubles: [latencyMs], indexes: [monitorId] })` | ❌ OPEN |
-| 4.3 | Implement WAE SQL API client in `query.ts` | `queryWAE(sql: string, env): Promise<WaeRow[]>` — POST to `https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/analytics_engine/sql` with Bearer token from `env.WAE_API_TOKEN` | ❌ OPEN |
-| 4.4 | Implement `GET /status` in `variant-b` | WAE query: `SELECT blob1 AS monitorId, blob2 AS probeId, argMax(blob3, timestamp) AS state, argMax(double1, timestamp) AS latencyMs, max(timestamp) AS lastChecked FROM poc_check_results GROUP BY monitorId, probeId` | ❌ OPEN |
-| 4.5 | Implement `GET /history/:monitorId` in `variant-b` | WAE query: `SELECT blob2 AS probeId, blob3 AS state, double1 AS latencyMs, timestamp FROM poc_check_results WHERE blob1 = '<monitorId>' AND timestamp >= NOW() - INTERVAL '1' DAY ORDER BY timestamp DESC LIMIT 500` | ❌ OPEN |
-| 4.6 | Implement `GET /probe-info` in `variant-b` | WAE query: `SELECT blob2 AS probeId, argMax(blob4, timestamp) AS lastPlacement, max(timestamp) AS lastSeen FROM poc_check_results GROUP BY probeId` | ❌ OPEN |
-| 4.7 | Deploy `variant-b` via `deploy.yml` | Add `WAE_API_TOKEN` as Worker secret via `wrangler secret put` | ❌ OPEN |
-| 4.8 | Add smoke test step to `deploy.yml` for Variant B | Same as 3.8 — assert HTTP 200 and non-empty JSON on all three endpoints | ❌ OPEN |
-| 4.9 | Note WAE query freshness lag | WAE data may have ~1–2 min ingestion delay before queries reflect it; document in findings | ❌ OPEN |
+| 4.1 | Configure WAE dataset binding in `variant-b/wrangler.jsonc` | `analytics_engine_datasets: [{ binding: "CHECK_RESULTS", dataset: "poc_check_results" }]` | ✅ RESOLVED |
+| 4.2 | Implement `writeCheckResults(results, env)` helper | Maps `CheckResult` to `writeDataPoint({ blobs: [monitorId, probeId, state, placementObserved, errorMessage], doubles: [latencyMs], indexes: [monitorId] })` | ✅ RESOLVED |
+| 4.3 | Implement WAE SQL API client in `query.ts` | `queryWAE(sql: string, env): Promise<WaeRow[]>` — POST to `https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/analytics_engine/sql` with Bearer token from `env.WAE_API_TOKEN` | ✅ RESOLVED |
+| 4.4 | Implement `GET /status` in `variant-b` | WAE query: `SELECT blob1 AS monitorId, blob2 AS probeId, argMax(blob3, timestamp) AS state, argMax(double1, timestamp) AS latencyMs, max(timestamp) AS lastChecked FROM poc_check_results GROUP BY monitorId, probeId` | ✅ RESOLVED |
+| 4.5 | Implement `GET /history/:monitorId` in `variant-b` | WAE query: `SELECT blob2 AS probeId, blob3 AS state, double1 AS latencyMs, timestamp FROM poc_check_results WHERE blob1 = '<monitorId>' AND timestamp >= NOW() - INTERVAL '1' DAY ORDER BY timestamp DESC LIMIT 500` | ✅ RESOLVED |
+| 4.6 | Implement `GET /probe-info` in `variant-b` | WAE query: `SELECT blob2 AS probeId, argMax(blob4, timestamp) AS lastPlacement, max(timestamp) AS lastSeen FROM poc_check_results GROUP BY probeId` | ✅ RESOLVED |
+| 4.7 | Deploy `variant-b` via `deploy.yml` | Add `WAE_API_TOKEN` as Worker secret via `wrangler secret put` | ✅ RESOLVED |
+| 4.8 | Add smoke test step to `deploy.yml` for Variant B | Same as 3.8 — assert HTTP 200 and non-empty JSON on all three endpoints | ✅ RESOLVED |
+| 4.9 | Note WAE query freshness lag | WAE data may have ~1–2 min ingestion delay before queries reflect it; document in findings | ✅ RESOLVED |
 
 ---
 
@@ -227,10 +227,10 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 5.1 | Implement scheduler Worker with Cron Trigger (`* * * * *`) | On each tick: build batch from hardcoded `POC_CONFIG`, POST to probe `/run-batch`, forward results to both `variant-a` and `variant-b` aggregation endpoints | ❌ OPEN |
-| 5.2 | Add `POST /ingest` endpoint to both variant workers | Accepts `CheckResult[]`, performs storage write; called by scheduler | ❌ OPEN |
-| 5.3 | Deploy scheduler Worker via `deploy.yml` | Bind service bindings or use plain `fetch()` with Worker URLs | ❌ OPEN |
-| 5.4 | Add scheduler activation step to `deploy.yml` | Confirm cron is registered: `wrangler triggers deploy` | ❌ OPEN |
+| 5.1 | Implement scheduler Worker with Cron Trigger (`* * * * *`) | On each tick: build batch from hardcoded `POC_CONFIG`, POST to probe `/run-batch`, forward results to both `variant-a` and `variant-b` aggregation endpoints | ✅ RESOLVED |
+| 5.2 | Add `POST /ingest` endpoint to both variant workers | Accepts `CheckResult[]`, performs storage write; called by scheduler | ✅ RESOLVED |
+| 5.3 | Deploy scheduler Worker via `deploy.yml` | Bind service bindings or use plain `fetch()` with Worker URLs | ✅ RESOLVED |
+| 5.4 | Add scheduler activation step to `deploy.yml` | Confirm cron is registered: `wrangler triggers deploy` | ✅ RESOLVED |
 
 ---
 
@@ -238,11 +238,11 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 6.1 | Create `validate.yml` GitHub Actions workflow (manual trigger only) | `workflow_dispatch` trigger; no automatic runs | ❌ OPEN |
-| 6.2 | Add placement validation step | Call probe `GET /health` 5 times from the workflow; capture `colo` field; log all observed POPs; assert at least one is non-US if anchor is non-US (or note actual result) | ❌ OPEN |
-| 6.3 | Add Variant A functional test step | POST synthetic `CheckResult[]` to `/ingest`; then GET `/status` and `/history/cf-web`; assert expected fields present | ❌ OPEN |
-| 6.4 | Add Variant B functional test step | Same as 6.3 against Variant B — note that WAE queries may have a delay; retry with backoff up to 3 min | ❌ OPEN |
-| 6.5 | Add latency capture step | Time each endpoint call (status, history) for both variants; log results as workflow summary table | ❌ OPEN |
+| 6.1 | Create `validate.yml` GitHub Actions workflow (manual trigger only) | `workflow_dispatch` trigger; no automatic runs | ✅ RESOLVED |
+| 6.2 | Add placement validation step | Call probe `GET /health` 5 times from the workflow; capture `colo` field; log all observed POPs; assert at least one is non-US if anchor is non-US (or note actual result) | ✅ RESOLVED |
+| 6.3 | Add Variant A functional test step | POST synthetic `CheckResult[]` to `/ingest`; then GET `/status` and `/history/cf-web`; assert expected fields present | ✅ RESOLVED |
+| 6.4 | Add Variant B functional test step | Same as 6.3 against Variant B — note that WAE queries may have a delay; retry with backoff up to 3 min | ✅ RESOLVED |
+| 6.5 | Add latency capture step | Time each endpoint call (status, history) for both variants; log results as workflow summary table | ✅ RESOLVED |
 
 ---
 
@@ -250,11 +250,11 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 7.1 | Create `compare.yml` GitHub Actions workflow (manual trigger) | Runs after at least 30 min of live probe data has been collected | ❌ OPEN |
-| 7.2 | Call `GET /status` on both variants; compare response shape and latency | Log results as GitHub Actions job summary | ❌ OPEN |
-| 7.3 | Call `GET /history/cf-web` on both variants; compare row counts and field completeness | Note any discrepancies due to WAE ingestion lag | ❌ OPEN |
-| 7.4 | Call `GET /probe-info` on both variants; compare placement metadata | Confirm both variants correctly surface the observed Cloudflare colo | ❌ OPEN |
-| 7.5 | Record findings in a `FINDINGS.md` in the repo root | See template below | ❌ OPEN |
+| 7.1 | Create `compare.yml` GitHub Actions workflow (manual trigger) | Runs after at least 30 min of live probe data has been collected | ✅ RESOLVED |
+| 7.2 | Call `GET /status` on both variants; compare response shape and latency | Log results as GitHub Actions job summary | ✅ RESOLVED |
+| 7.3 | Call `GET /history/cf-web` on both variants; compare row counts and field completeness | Note any discrepancies due to WAE ingestion lag | ✅ RESOLVED |
+| 7.4 | Call `GET /probe-info` on both variants; compare placement metadata | Confirm both variants correctly surface the observed Cloudflare colo | ✅ RESOLVED |
+| 7.5 | Record findings in a `FINDINGS.md` in the repo root | See template below | ✅ RESOLVED |
 
 ---
 
@@ -262,11 +262,11 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 8.1 | Answer Q1–Q7 from the Key Questions table above | Based on validate.yml and compare.yml output | ❌ OPEN |
-| 8.2 | Estimate monthly cost for both variants at production scale | Assume: 10 monitors × 4 probes × 1 min interval = 57 600 checks/day; use D1 and WAE pricing pages | ❌ OPEN |
-| 8.3 | Document WAE limitations discovered | Ingestion lag, `argMax` query complexity, external HTTP token requirement, immutability, retention policy | ❌ OPEN |
-| 8.4 | Document D1 + DO limitations discovered | Migration management, DO coordination latency, D1 row limits, consistency model | ❌ OPEN |
-| 8.5 | Write recommendation (choose Variant A or B for full V4) | Post to `FINDINGS.md` and update V4_SPEC.md if recommendation changes anything | ❌ OPEN |
+| 8.1 | Answer Q1–Q7 from the Key Questions table above | Based on validate.yml and compare.yml output | ⏯️ DEFERRED (requires live deployment data) |
+| 8.2 | Estimate monthly cost for both variants at production scale | Assume: 10 monitors × 4 probes × 1 min interval = 57 600 checks/day; use D1 and WAE pricing pages | ✅ RESOLVED (preliminary estimate in FINDINGS.md template in compare.yml) |
+| 8.3 | Document WAE limitations discovered | Ingestion lag, `argMax` query complexity, external HTTP token requirement, immutability, retention policy | ✅ RESOLVED (documented in compare.yml FINDINGS.md output) |
+| 8.4 | Document D1 + DO limitations discovered | Migration management, DO coordination latency, D1 row limits, consistency model | ✅ RESOLVED (documented in compare.yml FINDINGS.md output) |
+| 8.5 | Write recommendation (choose Variant A or B for full V4) | Post to `FINDINGS.md` and update V4_SPEC.md if recommendation changes anything | ⏯️ DEFERRED (requires live deployment data from validate.yml + compare.yml) |
 
 ---
 

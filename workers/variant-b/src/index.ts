@@ -1,4 +1,5 @@
 import type { CheckResult } from '@deucalion/probe-core';
+import { POC_CONFIG } from '@deucalion/probe-core';
 import { writeCheckResults } from './aggregator.js';
 import { queryWAE } from './query.js';
 
@@ -97,13 +98,21 @@ async function handleStatus(env: Env): Promise<Response> {
 
     return json({ monitors });
   } catch (err) {
-    return json({ error: String(err) }, 500);
+    return json({ error: err instanceof Error ? err.message : 'Internal error' }, 500);
   }
 }
 
+/** Known monitor IDs from the hardcoded POC config */
+const KNOWN_MONITOR_IDS: ReadonlySet<string> = new Set(POC_CONFIG.monitors.map((m) => m.id));
+
 async function handleHistory(env: Env, monitorId: string): Promise<Response> {
-  // Sanitize monitorId to prevent SQL injection
-  const safeMonitorId = monitorId.replace(/[^a-zA-Z0-9_-]/g, '');
+  // Validate monitorId against known allowlist to prevent SQL injection
+  if (!KNOWN_MONITOR_IDS.has(monitorId)) {
+    return json(
+      { error: `Unknown monitorId: ${monitorId}. Valid IDs: ${[...KNOWN_MONITOR_IDS].join(', ')}` },
+      400,
+    );
+  }
 
   const sql = `
     SELECT
@@ -114,7 +123,7 @@ async function handleHistory(env: Env, monitorId: string): Promise<Response> {
       blob5 AS errorMessage,
       timestamp
     FROM poc_check_results
-    WHERE blob1 = '${safeMonitorId}'
+    WHERE blob1 = '${monitorId}'
       AND timestamp >= NOW() - INTERVAL '1' DAY
     ORDER BY timestamp DESC
     LIMIT 500
@@ -124,7 +133,7 @@ async function handleHistory(env: Env, monitorId: string): Promise<Response> {
     const rows = await queryWAE(sql, env.CF_ACCOUNT_ID, env.WAE_API_TOKEN);
     return json({ monitorId, results: rows });
   } catch (err) {
-    return json({ error: String(err) }, 500);
+    return json({ error: err instanceof Error ? err.message : 'Internal error' }, 500);
   }
 }
 
@@ -142,7 +151,7 @@ async function handleProbeInfo(env: Env): Promise<Response> {
     const rows = await queryWAE(sql, env.CF_ACCOUNT_ID, env.WAE_API_TOKEN);
     return json({ probes: rows });
   } catch (err) {
-    return json({ error: String(err) }, 500);
+    return json({ error: err instanceof Error ? err.message : 'Internal error' }, 500);
   }
 }
 
