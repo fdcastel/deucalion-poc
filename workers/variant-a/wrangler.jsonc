@@ -1,0 +1,27 @@
+{
+  "name": "deucalion-poc-variant-a",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "deucalion-poc-db",
+      "database_id": "TO_BE_REPLACED",
+      "migrations_dir": "../../infra/migrations"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "AGGREGATION_DO",
+        "class_name": "AggregationDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["AggregationDO"]
+    }
+  ]
+}
