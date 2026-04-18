@@ -5,7 +5,9 @@
     "hintType": "host",
     "hintValue": "unisal.br:443",
     "expectedColo": "QWJ",
-    "source": "Centro Universitário Salesiano - Americana campus"
+    "source": "Centro Universitário Salesiano - Americana campus",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Aracatuba",
@@ -13,7 +15,9 @@
     "hintType": "host",
     "hintValue": "unesp.br:443",
     "expectedColo": "ARU",
-    "source": "UNESP - has Araçatuba campus"
+    "source": "UNESP - has Araçatuba campus",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Belém",
@@ -21,7 +25,9 @@
     "hintType": "host",
     "hintValue": "ufpa.br:443",
     "expectedColo": "BEL",
-    "source": "Universidade Federal do Pará - Belém"
+    "source": "Universidade Federal do Pará - Belém",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Belo Horizonte",
@@ -29,7 +35,9 @@
     "hintType": "host",
     "hintValue": "ufmg.br:443",
     "expectedColo": "CNF",
-    "source": "UFMG - largest university in MG"
+    "source": "UFMG - largest university in MG",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Blumenau",
@@ -37,7 +45,9 @@
     "hintType": "host",
     "hintValue": "furb.br:443",
     "expectedColo": "BNU",
-    "source": "Universidade Regional de Blumenau"
+    "source": "Universidade Regional de Blumenau",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Brasília",
@@ -45,7 +55,9 @@
     "hintType": "host",
     "hintValue": "unb.br:443",
     "expectedColo": "BSB",
-    "source": "Universidade de Brasília"
+    "source": "Universidade de Brasília",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Caçador",
@@ -53,7 +65,9 @@
     "hintType": "host",
     "hintValue": "uniarp.edu.br:443",
     "expectedColo": "CFC",
-    "source": "Universidade Alto Vale do Rio do Peixe - Caçador"
+    "source": "Universidade Alto Vale do Rio do Peixe - Caçador",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Campinas",
@@ -61,7 +75,9 @@
     "hintType": "host",
     "hintValue": "prefeitura.sp.gov.br:443",
     "expectedColo": "VCP",
-    "source": "Prefeitura de Campinas"
+    "source": "Prefeitura de Campinas",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Campos dos Goytacazes",
@@ -69,7 +85,9 @@
     "hintType": "host",
     "hintValue": "uenf.br:443",
     "expectedColo": "CAW",
-    "source": "UENF - state university in Campos"
+    "source": "UENF - state university in Campos",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Chapecó",
@@ -77,7 +95,9 @@
     "hintType": "host",
     "hintValue": "uffs.edu.br:443",
     "expectedColo": "XAP",
-    "source": "UFFS - federal university, Chapecó campus"
+    "source": "UFFS - federal university, Chapecó campus",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Cuiabá",
@@ -85,7 +105,9 @@
     "hintType": "host",
     "hintValue": "ufmt.br:443",
     "expectedColo": "CGB",
-    "source": "UFMT - federal university, Cuiabá"
+    "source": "UFMT - federal university, Cuiabá",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Curitiba",
@@ -93,7 +115,9 @@
     "hintType": "host",
     "hintValue": "ufpr.br:443",
     "expectedColo": "CWB",
-    "source": "UFPR - major federal university, Curitiba"
+    "source": "UFPR - major federal university, Curitiba",
+    "riskFlags": "NOT_SINGLE_HOMED",
+    "score": 115
   },
   {
     "city": "Florianópolis",
@@ -101,7 +125,9 @@
     "hintType": "host",
     "hintValue": "ufsc.br:443",
     "expectedColo": "FLN",
-    "source": "UFSC - federal university, Florianópolis"
+    "source": "UFSC - federal university, Florianópolis",
+    "riskFlags": "NOT_SINGLE_HOMED",
+    "score": 115
   },
   {
     "city": "Fortaleza",
@@ -109,7 +135,9 @@
     "hintType": "host",
     "hintValue": "ufc.br:443",
     "expectedColo": "FOR",
-    "source": "UFC - federal university, Fortaleza"
+    "source": "UFC - federal university, Fortaleza",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Goiânia",
@@ -117,7 +145,9 @@
     "hintType": "host",
     "hintValue": "ufg.br:443",
     "expectedColo": "GYN",
-    "source": "UFG - federal university, Goiânia"
+    "source": "UFG - federal university, Goiânia",
+    "riskFlags": "NOT_SINGLE_HOMED",
+    "score": 115
   },
   {
     "city": "Joinville",
@@ -125,7 +155,9 @@
     "hintType": "host",
     "hintValue": "univille.edu.br:443",
     "expectedColo": "JOI",
-    "source": "UNIVILLE - private university in Joinville"
+    "source": "UNIVILLE - private university in Joinville",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Juazeiro do Norte",
@@ -133,7 +165,9 @@
     "hintType": "host",
     "hintValue": "urca.br:443",
     "expectedColo": "JDO",
-    "source": "URCA - state university, Juazeiro do Norte campus"
+    "source": "URCA - state university, Juazeiro do Norte campus",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Manaus",
@@ -141,7 +175,9 @@
     "hintType": "host",
     "hintValue": "ufam.edu.br:443",
     "expectedColo": "MAO",
-    "source": "UFAM - federal university, Manaus"
+    "source": "UFAM - federal university, Manaus",
+    "riskFlags": "NOT_SINGLE_HOMED",
+    "score": 115
   },
   {
     "city": "Palmas",
@@ -149,7 +185,9 @@
     "hintType": "host",
     "hintValue": "uft.edu.br:443",
     "expectedColo": "PMW",
-    "source": "UFT - federal university, Palmas (capital of Tocantins)"
+    "source": "UFT - federal university, Palmas (capital of Tocantins)",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Porto Alegre",
@@ -157,7 +195,9 @@
     "hintType": "host",
     "hintValue": "tjrs.jus.br:443",
     "expectedColo": "POA",
-    "source": "Tribunal de Justiça do RS"
+    "source": "Tribunal de Justiça do RS",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Recife",
@@ -165,7 +205,9 @@
     "hintType": "host",
     "hintValue": "tjpe.jus.br:443",
     "expectedColo": "REC",
-    "source": "Tribunal de Justiça de PE"
+    "source": "Tribunal de Justiça de PE",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Ribeirão Preto",
@@ -173,7 +215,9 @@
     "hintType": "host",
     "hintValue": "fmrp.usp.br:443",
     "expectedColo": "RAO",
-    "source": "USP Ribeirão Preto - medical school campus"
+    "source": "USP Ribeirão Preto - medical school campus",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Rio de Janeiro",
@@ -181,7 +225,9 @@
     "hintType": "host",
     "hintValue": "ufrj.br:443",
     "expectedColo": "GIG",
-    "source": "UFRJ - major federal university, Rio de Janeiro"
+    "source": "UFRJ - major federal university, Rio de Janeiro",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Salvador",
@@ -189,7 +235,9 @@
     "hintType": "host",
     "hintValue": "tjba.jus.br:443",
     "expectedColo": "SSA",
-    "source": "Tribunal de Justiça da Bahia"
+    "source": "Tribunal de Justiça da Bahia",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "São José do Rio Preto",
@@ -197,7 +245,9 @@
     "hintType": "host",
     "hintValue": "famerp.br:443",
     "expectedColo": "SJP",
-    "source": "FAMERP - medical school, São José do Rio Preto"
+    "source": "FAMERP - medical school, São José do Rio Preto",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "São Paulo",
@@ -205,7 +255,9 @@
     "hintType": "host",
     "hintValue": "usp.br:443",
     "expectedColo": "GRU",
-    "source": "USP - largest university in Brazil, São Paulo"
+    "source": "USP - largest university in Brazil, São Paulo",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Sorocaba",
@@ -213,7 +265,9 @@
     "hintType": "host",
     "hintValue": "uniso.br:443",
     "expectedColo": "SOD",
-    "source": "UNISO - private university in Sorocaba"
+    "source": "UNISO - private university in Sorocaba",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Timbó",
@@ -221,7 +275,9 @@
     "hintType": "host",
     "hintValue": "univali.br:443",
     "expectedColo": "NVT",
-    "source": "UNIVALI - covers Itajaí/Balneário Camboriú area near Timbó"
+    "source": "UNIVALI - covers Itajaí/Balneário Camboriú area near Timbó",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Uberlândia",
@@ -229,7 +285,9 @@
     "hintType": "host",
     "hintValue": "ufu.br:443",
     "expectedColo": "UDI",
-    "source": "UFU - federal university, Uberlândia"
+    "source": "UFU - federal university, Uberlândia",
+    "riskFlags": "",
+    "score": 135
   },
   {
     "city": "Vitória",
@@ -237,6 +295,8 @@
     "hintType": "host",
     "hintValue": "ufes.br:443",
     "expectedColo": "VIX",
-    "source": "UFES - federal university, Vitória (Espírito Santo)"
+    "source": "UFES - federal university, Vitória (Espírito Santo)",
+    "riskFlags": "NOT_SINGLE_HOMED",
+    "score": 115
   }
 ]
