@@ -165,7 +165,7 @@ deucalion-v4-poc/
 | 0.4 | Add ESLint + Prettier config | Single config at root; extends recommended rules | ✅ RESOLVED |
 | 0.5 | Add Vitest config at root for unit tests | `pool: 'forks'`, coverage via `v8` | ✅ RESOLVED |
 | 0.6 | Add GitHub Actions `ci.yml` — runs lint, typecheck, unit tests on every push | No deployment in this workflow | ✅ RESOLVED |
-| 0.7 | Add Cloudflare secrets to GitHub repository | `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `WAE_API_TOKEN` (Account Analytics Read) | ❌ OPEN |
+| 0.7 | Add Cloudflare secrets to GitHub repository | `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `WAE_API_TOKEN` (Account Analytics Read) | ⏯️ DEFERRED (secrets created, but `CF_API_TOKEN` is currently an OAuth token and fails Wrangler auth with code 9106; requires real API token) |
 | 0.8 | Add `.dev.vars.example` files per worker with required env var names | Documents what secrets are needed locally | ✅ RESOLVED |
 
 ---
