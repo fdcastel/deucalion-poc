@@ -1,0 +1,272 @@
+name: Validate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROBE_URL: https://deucalion-poc-probe.${{ secrets.CF_ACCOUNT_ID }}.workers.dev
+  VARIANT_A_URL: https://deucalion-poc-variant-a.${{ secrets.CF_ACCOUNT_ID }}.workers.dev
+  VARIANT_B_URL: https://deucalion-poc-variant-b.${{ secrets.CF_ACCOUNT_ID }}.workers.dev
+
+jobs:
+  placement-validation:
+    name: Q1/Q2 — Probe Placement Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call probe /health 5 times and capture colos
+        id: placement
+        run: |
+          echo "## Probe Placement Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Call | Colo | Timestamp |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|-----------|" >> $GITHUB_STEP_SUMMARY
+
+          COLOS=""
+          for i in 1 2 3 4 5; do
+            RESPONSE=$(curl -sf "${{ env.PROBE_URL }}/health")
+            COLO=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['colo'])")
+            TS=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['timestamp'])")
+            echo "| $i | $COLO | $TS |" >> $GITHUB_STEP_SUMMARY
+            COLOS="$COLOS $COLO"
+            sleep 2
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**All observed colos:** $COLOS" >> $GITHUB_STEP_SUMMARY
+          echo "**Placement hint:** cloudflare.com:443 (US-East expected)" >> $GITHUB_STEP_SUMMARY
+          echo "colos=$COLOS" >> $GITHUB_OUTPUT
+
+  variant-a-functional:
+    name: Q4 — Variant A Functional Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST synthetic CheckResult[] to variant-a /ingest
+        id: ingest
+        run: |
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          PAYLOAD=$(cat <<EOF
+          [
+            {
+              "monitorId": "cf-web",
+              "probeId": "us-east",
+              "startedAt": "$NOW",
+              "finishedAt": "$NOW",
+              "latencyMs": 42,
+              "state": "up",
+              "statusCode": 200,
+              "placementRequested": "cloudflare.com:443",
+              "placementObserved": "EWR|synthetic-test"
+            },
+            {
+              "monitorId": "cf-blog",
+              "probeId": "us-east",
+              "startedAt": "$NOW",
+              "finishedAt": "$NOW",
+              "latencyMs": 55,
+              "state": "up",
+              "statusCode": 200,
+              "placementRequested": "cloudflare.com:443",
+              "placementObserved": "EWR|synthetic-test"
+            }
+          ]
+          EOF
+          )
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ env.VARIANT_A_URL }}/ingest" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+          echo "Ingest status: $STATUS"
+          [ "$STATUS" = "200" ] || (echo "variant-a /ingest failed with $STATUS" && exit 1)
+
+      - name: GET variant-a /status and assert fields
+        id: status-a
+        run: |
+          START=$(date +%s%3N)
+          BODY=$(curl -sf "${{ env.VARIANT_A_URL }}/status")
+          END=$(date +%s%3N)
+          LATENCY=$((END - START))
+
+          echo "Response: $BODY"
+          echo "Latency: ${LATENCY}ms"
+
+          echo "$BODY" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert 'monitors' in data, 'Missing monitors key'
+          monitors = data['monitors']
+          assert len(monitors) > 0, 'No monitors in response'
+          for mid, m in monitors.items():
+              assert 'state' in m, f'Missing state in {mid}'
+              assert 'latencyMs' in m, f'Missing latencyMs in {mid}'
+          print('variant-a /status assertions passed')
+          "
+
+          echo "status_latency_ms=$LATENCY" >> $GITHUB_OUTPUT
+
+          echo "## Variant A /status" >> $GITHUB_STEP_SUMMARY
+          echo "- Latency: **${LATENCY}ms**" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: GET variant-a /history/cf-web and assert fields
+        id: history-a
+        run: |
+          START=$(date +%s%3N)
+          BODY=$(curl -sf "${{ env.VARIANT_A_URL }}/history/cf-web")
+          END=$(date +%s%3N)
+          LATENCY=$((END - START))
+
+          echo "Response: $BODY"
+          echo "Latency: ${LATENCY}ms"
+
+          echo "$BODY" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert 'monitorId' in data, 'Missing monitorId key'
+          assert 'results' in data, 'Missing results key'
+          print(f'variant-a /history/cf-web: {len(data[\"results\"])} rows')
+          "
+
+          echo "history_latency_ms=$LATENCY" >> $GITHUB_OUTPUT
+
+          echo "## Variant A /history/cf-web" >> $GITHUB_STEP_SUMMARY
+          echo "- Latency: **${LATENCY}ms**" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: GET variant-a /probe-info and assert fields
+        run: |
+          BODY=$(curl -sf "${{ env.VARIANT_A_URL }}/probe-info")
+          echo "Response: $BODY"
+          echo "$BODY" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert 'probes' in data, 'Missing probes key'
+          print(f'variant-a /probe-info: {len(data[\"probes\"])} probes')
+          "
+
+  variant-b-functional:
+    name: Q3/Q5 — Variant B Functional Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST synthetic CheckResult[] to variant-b /ingest
+        run: |
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          PAYLOAD=$(cat <<EOF
+          [
+            {
+              "monitorId": "cf-web",
+              "probeId": "us-east",
+              "startedAt": "$NOW",
+              "finishedAt": "$NOW",
+              "latencyMs": 42,
+              "state": "up",
+              "statusCode": 200,
+              "placementRequested": "cloudflare.com:443",
+              "placementObserved": "EWR|synthetic-test"
+            },
+            {
+              "monitorId": "cf-blog",
+              "probeId": "us-east",
+              "startedAt": "$NOW",
+              "finishedAt": "$NOW",
+              "latencyMs": 55,
+              "state": "up",
+              "statusCode": 200,
+              "placementRequested": "cloudflare.com:443",
+              "placementObserved": "EWR|synthetic-test"
+            }
+          ]
+          EOF
+          )
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ env.VARIANT_B_URL }}/ingest" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+          echo "Ingest status: $STATUS"
+          [ "$STATUS" = "200" ] || (echo "variant-b /ingest failed with $STATUS" && exit 1)
+
+      - name: Wait for WAE ingestion (up to 3 min with backoff)
+        run: |
+          echo "Waiting for WAE data ingestion..."
+          for wait in 30 30 60 60; do
+            sleep $wait
+            BODY=$(curl -sf "${{ env.VARIANT_B_URL }}/status" || echo '{"monitors":{}}')
+            COUNT=$(echo "$BODY" | python3 -c "import sys,json; print(len(json.load(sys.stdin).get('monitors', {})))" 2>/dev/null || echo "0")
+            echo "Monitor count after waiting: $COUNT"
+            if [ "$COUNT" -gt "0" ]; then
+              echo "WAE data is available!"
+              break
+            fi
+            echo "WAE data not yet available, retrying..."
+          done
+
+      - name: GET variant-b /status and assert fields
+        id: status-b
+        run: |
+          START=$(date +%s%3N)
+          BODY=$(curl -sf "${{ env.VARIANT_B_URL }}/status")
+          END=$(date +%s%3N)
+          LATENCY=$((END - START))
+
+          echo "Response: $BODY"
+          echo "Latency: ${LATENCY}ms"
+
+          echo "$BODY" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert 'monitors' in data, 'Missing monitors key'
+          print(f'variant-b /status: {len(data[\"monitors\"])} monitors')
+          "
+
+          echo "status_latency_ms=$LATENCY" >> $GITHUB_OUTPUT
+
+          echo "## Variant B /status" >> $GITHUB_STEP_SUMMARY
+          echo "- Latency: **${LATENCY}ms**" >> $GITHUB_STEP_SUMMARY
+          echo "- Note: WAE queries may reflect data with ~1–2 min ingestion lag" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: GET variant-b /history/cf-web and assert fields
+        id: history-b
+        run: |
+          START=$(date +%s%3N)
+          BODY=$(curl -sf "${{ env.VARIANT_B_URL }}/history/cf-web")
+          END=$(date +%s%3N)
+          LATENCY=$((END - START))
+
+          echo "Response: $BODY"
+          echo "Latency: ${LATENCY}ms"
+
+          echo "$BODY" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert 'monitorId' in data, 'Missing monitorId key'
+          assert 'results' in data, 'Missing results key'
+          print(f'variant-b /history/cf-web: {len(data[\"results\"])} rows')
+          "
+
+          echo "history_latency_ms=$LATENCY" >> $GITHUB_OUTPUT
+
+          echo "## Variant B /history/cf-web" >> $GITHUB_STEP_SUMMARY
+          echo "- Latency: **${LATENCY}ms**" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: GET variant-b /probe-info and assert fields
+        run: |
+          BODY=$(curl -sf "${{ env.VARIANT_B_URL }}/probe-info")
+          echo "Response: $BODY"
+          echo "$BODY" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert 'probes' in data, 'Missing probes key'
+          print(f'variant-b /probe-info: {len(data[\"probes\"])} probes')
+          "

@@ -12,7 +12,7 @@ export default {
     ctx.waitUntil(runScheduledCheck(env));
   },
 
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === '/health' && request.method === 'GET') {
@@ -25,7 +25,7 @@ export default {
         await runScheduledCheck(env);
         return json({ ok: true, message: 'Check cycle completed' });
       } catch (err) {
-        return json({ error: String(err) }, 500);
+        return json({ error: err instanceof Error ? err.message : 'Internal error' }, 500);
       }
     }
 

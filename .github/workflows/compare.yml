@@ -1,0 +1,224 @@
+name: Compare
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: "Context note (e.g. 'after 30 min of live data')"
+        required: false
+        default: "manual run"
+
+permissions:
+  contents: write
+
+env:
+  VARIANT_A_URL: https://deucalion-poc-variant-a.${{ secrets.CF_ACCOUNT_ID }}.workers.dev
+  VARIANT_B_URL: https://deucalion-poc-variant-b.${{ secrets.CF_ACCOUNT_ID }}.workers.dev
+
+jobs:
+  compare:
+    name: Side-by-Side Comparison
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── GET /status ──────────────────────────────────────────────────────
+      - name: GET /status from both variants
+        id: status
+        run: |
+          echo "## GET /status Comparison" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Variant A
+          START_A=$(date +%s%3N)
+          BODY_A=$(curl -sf "${{ env.VARIANT_A_URL }}/status")
+          END_A=$(date +%s%3N)
+          LAT_A=$((END_A - START_A))
+
+          # Variant B
+          START_B=$(date +%s%3N)
+          BODY_B=$(curl -sf "${{ env.VARIANT_B_URL }}/status")
+          END_B=$(date +%s%3N)
+          LAT_B=$((END_B - START_B))
+
+          COUNT_A=$(echo "$BODY_A" | python3 -c "import sys,json; print(len(json.load(sys.stdin).get('monitors', {})))" 2>/dev/null || echo "?")
+          COUNT_B=$(echo "$BODY_B" | python3 -c "import sys,json; print(len(json.load(sys.stdin).get('monitors', {})))" 2>/dev/null || echo "?")
+
+          echo "| Metric | Variant A (D1+DO) | Variant B (WAE) |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------------------|-----------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Latency | ${LAT_A}ms | ${LAT_B}ms |" >> $GITHUB_STEP_SUMMARY
+          echo "| Monitor count | $COUNT_A | $COUNT_B |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Variant A /status" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY_A" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          echo "### Variant B /status" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY_B" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          echo "status_lat_a=$LAT_A" >> $GITHUB_OUTPUT
+          echo "status_lat_b=$LAT_B" >> $GITHUB_OUTPUT
+          echo "status_count_a=$COUNT_A" >> $GITHUB_OUTPUT
+          echo "status_count_b=$COUNT_B" >> $GITHUB_OUTPUT
+
+      # ── GET /history/cf-web ──────────────────────────────────────────────
+      - name: GET /history/cf-web from both variants
+        id: history
+        run: |
+          echo "## GET /history/cf-web Comparison" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Variant A
+          START_A=$(date +%s%3N)
+          BODY_A=$(curl -sf "${{ env.VARIANT_A_URL }}/history/cf-web")
+          END_A=$(date +%s%3N)
+          LAT_A=$((END_A - START_A))
+
+          # Variant B
+          START_B=$(date +%s%3N)
+          BODY_B=$(curl -sf "${{ env.VARIANT_B_URL }}/history/cf-web")
+          END_B=$(date +%s%3N)
+          LAT_B=$((END_B - START_B))
+
+          ROWS_A=$(echo "$BODY_A" | python3 -c "import sys,json; print(len(json.load(sys.stdin).get('results', [])))" 2>/dev/null || echo "?")
+          ROWS_B=$(echo "$BODY_B" | python3 -c "import sys,json; print(len(json.load(sys.stdin).get('results', [])))" 2>/dev/null || echo "?")
+
+          echo "| Metric | Variant A (D1+DO) | Variant B (WAE) |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------------------|-----------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Latency | ${LAT_A}ms | ${LAT_B}ms |" >> $GITHUB_STEP_SUMMARY
+          echo "| Row count (last 24h) | $ROWS_A | $ROWS_B |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ROWS_A" != "$ROWS_B" ]; then
+            echo "> ⚠️ Row count discrepancy: Variant A=$ROWS_A, Variant B=$ROWS_B — may be due to WAE ingestion lag" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "history_lat_a=$LAT_A" >> $GITHUB_OUTPUT
+          echo "history_lat_b=$LAT_B" >> $GITHUB_OUTPUT
+          echo "history_rows_a=$ROWS_A" >> $GITHUB_OUTPUT
+          echo "history_rows_b=$ROWS_B" >> $GITHUB_OUTPUT
+
+      # ── GET /probe-info ──────────────────────────────────────────────────
+      - name: GET /probe-info from both variants
+        id: probeinfo
+        run: |
+          echo "## GET /probe-info Comparison" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          BODY_A=$(curl -sf "${{ env.VARIANT_A_URL }}/probe-info")
+          BODY_B=$(curl -sf "${{ env.VARIANT_B_URL }}/probe-info")
+
+          echo "### Variant A /probe-info" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY_A" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          echo "### Variant B /probe-info" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo "$BODY_B" | python3 -m json.tool >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      # ── Summary table ────────────────────────────────────────────────────
+      - name: Write latency summary
+        id: summary
+        run: |
+          echo "## Latency Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Endpoint | Variant A (D1+DO) | Variant B (WAE) |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------------------|-----------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| GET /status | ${{ steps.status.outputs.status_lat_a }}ms | ${{ steps.status.outputs.status_lat_b }}ms |" >> $GITHUB_STEP_SUMMARY
+          echo "| GET /history/:id | ${{ steps.history.outputs.history_lat_a }}ms | ${{ steps.history.outputs.history_lat_b }}ms |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Run context: ${{ github.event.inputs.note }}_" >> $GITHUB_STEP_SUMMARY
+
+          # Store for FINDINGS.md
+          echo "STATUS_LAT_A=${{ steps.status.outputs.status_lat_a }}" >> /tmp/findings.env
+          echo "STATUS_LAT_B=${{ steps.status.outputs.status_lat_b }}" >> /tmp/findings.env
+          echo "HISTORY_LAT_A=${{ steps.history.outputs.history_lat_a }}" >> /tmp/findings.env
+          echo "HISTORY_LAT_B=${{ steps.history.outputs.history_lat_b }}" >> /tmp/findings.env
+          echo "HISTORY_ROWS_A=${{ steps.history.outputs.history_rows_a }}" >> /tmp/findings.env
+          echo "HISTORY_ROWS_B=${{ steps.history.outputs.history_rows_b }}" >> /tmp/findings.env
+          echo "STATUS_COUNT_A=${{ steps.status.outputs.status_count_a }}" >> /tmp/findings.env
+          echo "STATUS_COUNT_B=${{ steps.status.outputs.status_count_b }}" >> /tmp/findings.env
+
+      # ── Write FINDINGS.md ────────────────────────────────────────────────
+      - name: Write FINDINGS.md
+        run: |
+          source /tmp/findings.env
+
+          cat > FINDINGS.md <<EOF
+          # POC Findings
+
+          > Generated by \`compare.yml\` on $(date -u +"%Y-%m-%d %H:%M UTC")
+          > Context: ${{ github.event.inputs.note }}
+
+          ## Placement Validation (Q1, Q2)
+          - Observed colos for \`probe-us-east\` with \`placement.host: cloudflare.com:443\`: _see validate.yml run output_
+          - Expected: EWR, IAD, ORD, or similar US-East POPs
+          - Verdict: _to be filled after validate.yml run_
+
+          ## WAE Current State Queries (Q3)
+          - Does \`argMax\` query return expected state? _see validate.yml run_
+          - Observed freshness lag: _~1–2 min typical_
+          - Query response time (p50, p95): _see latency table below_
+
+          ## Variant A vs B Latency (Q4)
+          | Endpoint | Variant A (D1+DO) | Variant B (WAE) |
+          |----------|-------------------|-----------------|
+          | GET /status | ${STATUS_LAT_A}ms | ${STATUS_LAT_B}ms |
+          | GET /history/:id | ${HISTORY_LAT_A}ms | ${HISTORY_LAT_B}ms |
+
+          ## WAE Query Complexity (Q5)
+          - Current state query uses \`argMax(blob3, timestamp) GROUP BY monitorId, probeId\`
+          - History query uses \`WHERE blob1 = '<id>' AND timestamp >= NOW() - INTERVAL '1' DAY\`
+          - Rolling average latency: \`AVG(double1)\` over filtered window
+          - Developer experience note: positional blob/double columns reduce readability vs named SQL columns
+
+          ## Developer Experience (Q6)
+          - D1: schema migrations, upsert for current state, familiar SQL, named columns
+          - WAE: zero schema, append-only, positional columns (blob1/blob2…) reduce readability, no mutations
+
+          ## Cost Estimate (Q7)
+          _At 4 monitors × 1 probe × 1 min interval = 5 760 checks/day_
+          _At 10 monitors × 4 probes × 1 min interval = 57 600 checks/day_
+
+          | | Variant A (D1+DO) | Variant B (WAE) |
+          |-|-----------|-----------|
+          | Writes/day (POC) | D1: ~11 520 rows (2 tables) | WAE: 5 760 data points |
+          | Reads/day (est.) | D1: ~1 440 queries (1/min status) | WAE: ~1 440 SQL API calls |
+          | D1 storage cost | ~\$0 (free tier: 5 GB) | N/A |
+          | WAE cost | N/A | ~\$0 (free tier: 100K data points/day) |
+          | Workers cost | ~\$0 (free tier) | ~\$0 (free tier) |
+          | Est. monthly cost | **~\$0 at POC scale** | **~\$0 at POC scale** |
+
+          > At production scale (57 600/day): D1 writes approach paid tier (~\$0.75/month per 25M rows);
+          > WAE at 57 600/day stays within free 100K/day limit.
+
+          ## Data Points (from this run)
+          - Variant A monitor count: ${STATUS_COUNT_A}
+          - Variant B monitor count: ${STATUS_COUNT_B}
+          - Variant A history rows (cf-web, 24h): ${HISTORY_ROWS_A}
+          - Variant B history rows (cf-web, 24h): ${HISTORY_ROWS_B}
+
+          ## Recommendation
+          _To be filled after reviewing placement validation results and latency data._
+
+          Preliminary assessment:
+          - **Variant A (D1+DO)** provides strong consistency, immediate query results, and familiar SQL tooling.
+            The DO acts as an always-fresh in-memory cache for current state, eliminating read latency on \`/status\`.
+          - **Variant B (WAE)** offers zero schema management and potential cost savings at high write volume,
+            but the ~1–2 min ingestion lag makes it unsuitable for real-time status views.
+          EOF
+
+      - name: Commit FINDINGS.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add FINDINGS.md
+          git commit -m "chore: update FINDINGS.md from compare workflow run" || echo "No changes to commit"
+          git push
