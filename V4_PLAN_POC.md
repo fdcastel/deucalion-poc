@@ -315,8 +315,74 @@ Create this file in the repo root after the comparison workflow runs:
 
 ---
 
-## Deployment Checklist (run before first deploy)
+### Phase 9 — Brazilian PoP Placement Sweep
 
+
+**Goal:** Systematically test `placement.host` / `placement.hostname` hints for all 30 reachable Brazilian Cloudflare PoPs to answer Q1 and Q2 with real data: does Cloudflare's host-based placement actually route each Worker to the expected city PoP?
+
+**Approach:**
+- A GitHub Actions matrix workflow (`placement-sweep.yml`) deploys one probe Worker per city simultaneously (30 parallel jobs, `max-parallel: 10`).
+- Each Worker is named `deucalion-poc-probe-sweep-{iata}` and carries the city-specific placement hint.
+- After a brief warmup, the workflow calls `/health` 10 times and records the observed `colo`.
+- All 30 Workers are deleted after testing.
+- Results are committed to `PLACEMENT_SWEEP_RESULTS.md`.
+
+#### 9.0 — Placement hint reference table
+
+Canonical input to the sweep. Derived from `tmp/br-placement-hints-results.csv`. Prefer L7 (`hostname`) over L4 (`host`); use L4 when L7 is the only confirmed working type. São José dos Campos (SJK) excluded — no working external host found.
+
+| City | IATA | Hint type | Hint value | Source |
+|------|------|-----------|------------|--------|
+| Americana | QWJ | `hostname` | `unisal.br` | Centro Universitário Salesiano |
+| Araçatuba | ARU | `hostname` | `unesp.br` | UNESP – Araçatuba campus |
+| Belém | BEL | `hostname` | `ufpa.br` | UFPA |
+| Belo Horizonte | CNF | `hostname` | `ufmg.br` | UFMG |
+| Blumenau | BNU | `host` | `furb.br:443` | FURB (L7 fails; L4 only) |
+| Brasília | BSB | `hostname` | `unb.br` | UnB |
+| Caçador | CFC | `hostname` | `uniarp.edu.br` | UNIARP |
+| Campinas | VCP | `hostname` | `unicamp.br` | Unicamp |
+| Campos dos Goytacazes | CAW | `hostname` | `uenf.br` | UENF |
+| Chapecó | XAP | `host` | `uffs.edu.br:443` | UFFS (L7 fails; L4 only) |
+| Cuiabá | CGB | `hostname` | `ufmt.br` | UFMT |
+| Curitiba | CWB | `hostname` | `ufpr.br` | UFPR |
+| Florianópolis | FLN | `hostname` | `ufsc.br` | UFSC |
+| Fortaleza | FOR | `hostname` | `ufc.br` | UFC |
+| Goiânia | GYN | `hostname` | `ufg.br` | UFG |
+| Joinville | JOI | `hostname` | `univille.edu.br` | UNIVILLE |
+| Juazeiro do Norte | JDO | `hostname` | `urca.br` | URCA |
+| Manaus | MAO | `hostname` | `ufam.edu.br` | UFAM |
+| Palmas | PMW | `hostname` | `uft.edu.br` | UFT |
+| Porto Alegre | POA | `hostname` | `ufrgs.br` | UFRGS |
+| Recife | REC | `host` | `tjpe.jus.br:443` | TJPE (UFPE unreachable; L4 only) |
+| Ribeirão Preto | RAO | `hostname` | `fmrp.usp.br` | USP Ribeirão Preto |
+| Rio de Janeiro | GIG | `hostname` | `ufrj.br` | UFRJ |
+| Salvador | SSA | `hostname` | `ufba.br` | UFBA |
+| São José do Rio Preto | SJP | `host` | `famerp.br:443` | FAMERP (L7 fails; L4 only) |
+| São Paulo | GRU | `hostname` | `usp.br` | USP |
+| Sorocaba | SOD | `hostname` | `uniso.br` | UNISO |
+| Timbó | NVT | `hostname` | `univali.br` | UNIVALI |
+| Uberlândia | UDI | `hostname` | `ufu.br` | UFU |
+| Vitória | VIX | `hostname` | `ufes.br` | UFES |
+
+#### Phase 9 tasks
+
+| # | Task | Notes | Status |
+|---|------|-------|--------|
+| 9.1 | Add `workers/probe-placement-test/` scaffold | Same source as `workers/probe/src/`; add `wrangler.jsonc.template` with `{{IATA}}`, `{{HINT_TYPE}}`, and `{{HINT_VALUE}}` placeholders; worker name pattern: `deucalion-poc-probe-sweep-{{iata}}` | ❌ OPEN |
+| 9.2 | Add `.github/placement-hints.json` | Machine-readable version of the §9.0 table: `[{ "city": "Curitiba", "iata": "CWB", "hintType": "hostname", "hintValue": "ufpr.br" }, ...]`; 30 entries; this is the workflow matrix source | ❌ OPEN |
+| 9.3 | Create `.github/workflows/placement-sweep.yml` | `workflow_dispatch` trigger; matrix strategy driven by `placement-hints.json`; `max-parallel: 10` to stay within Cloudflare API rate limits | ❌ OPEN |
+| 9.4 | Implement per-city matrix job | Steps: (1) generate `wrangler.jsonc` from template via `envsubst`; (2) `wrangler deploy`; (3) 30 s warmup sleep; (4) `GET /health` 10× with 2 s gaps, capture `colo` from JSON; (5) set job output `{ city, iata, hintType, hintValue, observedColos }`; (6) `wrangler delete --force` cleanup | ❌ OPEN |
+| 9.5 | Implement aggregation job | `needs: [sweep]`; reads all matrix outputs; builds summary table (city, hint, observed colo(s), exact-match ✅/❌, consistent ✅/❌ if all 10 calls returned same colo); commits `PLACEMENT_SWEEP_RESULTS.md` to repo | ❌ OPEN |
+| 9.6 | Define and document success criteria | Exact match: all 10 observed colos == expected IATA; Partial match: majority of colos match IATA; Loose match: observed colo is any known Brazilian PoP; Failure: non-Brazilian or mixed. Record pass rates at each threshold. | ❌ OPEN |
+| 9.7 | Update `FINDINGS.md` Q1/Q2 section with sweep results | Replace the single-city `CWB` result from Phase 6 with the full 30-city table and revised verdict on `placement.host`/`hostname` reliability | ❌ OPEN |
+
+**Sequence:** 9.1 → 9.2 → 9.3 → 9.4 → 9.5 → 9.6 → 9.7. Workflow prerequisites already satisfied by Phase 0.7 credentials.
+
+**Expected output:** `PLACEMENT_SWEEP_RESULTS.md` with a 30-row table. The exact-IATA pass rate is the quantitative answer to Q1/Q2.
+
+---
+
+## Deployment Checklist (run before first deploy)
 - [ ] Cloudflare account created and logged in via `wrangler login`
 - [ ] D1 database created: `wrangler d1 create deucalion-poc-db`
 - [ ] DO namespace created: handled automatically by `wrangler deploy`
