@@ -5,8 +5,13 @@
 
 ## Placement Validation (Q1, Q2)
 - Observed colos for `probe-us-east` with `placement.host: cloudflare.com:443`: `CWB` across repeated live samples after deployment
+- Phase 9 sweep (`PLACEMENT_SWEEP_RESULTS.md`) tested 30 Brazilian city-specific hints (`host`/`hostname`) with 10 calls each:
+  - Exact match pass rate: `0/30` (0.0%)
+  - Partial match pass rate: `0/30` (0.0%)
+  - Loose (any Brazilian PoP observed) pass rate: `0/30` (0.0%)
+  - Failures (only foreign PoPs observed): `30/30` (100.0%)
 - Expected: EWR, IAD, ORD, or similar US-East POPs
-- Verdict: placement did not converge on an expected US-East POP in this run. The deployed probe consistently reported `CWB`, so the host hint did not produce the intended anchor behavior for this POC.
+- Verdict: placement hints did not converge to expected regional PoPs in this POC. Single-host and hostname hints consistently resolved to foreign PoPs (e.g. IAD/ORD/DFW/LAX/SEA/SJC), so `placement.host`/`placement.hostname` is not reliable here for city-level or even country-level placement control.
 
 ## WAE Current State Queries (Q3)
 - Does `argMax` query return expected state? Yes. Variant B returned the expected latest state for both synthetic monitor results.
@@ -61,7 +66,7 @@ Preliminary assessment:
   but the ~1–2 min ingestion lag makes it unsuitable for real-time status views.
 
 Final assessment:
-- Q1/Q2 do not support relying on the current placement-host approach for predictable US-East execution in this POC.
+- Q1/Q2 do not support relying on host-based placement hints for predictable regional execution in this POC (validated by the 30-city sweep with 0 exact/partial matches).
 - Q3/Q5 confirm WAE can answer the required queries, but with ingestion delay and higher query latency.
 - Q4 favors Variant A on both tested read endpoints.
 - Q6 favors Variant A for operational clarity when current-state reads matter more than schema-free writes.
