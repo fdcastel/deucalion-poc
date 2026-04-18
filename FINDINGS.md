@@ -4,14 +4,14 @@
 > Context: immediately after deploy+validate
 
 ## Placement Validation (Q1, Q2)
-- Observed colos for `probe-us-east` with `placement.host: cloudflare.com:443`: _see validate.yml run output_
+- Observed colos for `probe-us-east` with `placement.host: cloudflare.com:443`: `CWB` across repeated live samples after deployment
 - Expected: EWR, IAD, ORD, or similar US-East POPs
-- Verdict: _to be filled after validate.yml run_
+- Verdict: placement did not converge on an expected US-East POP in this run. The deployed probe consistently reported `CWB`, so the host hint did not produce the intended anchor behavior for this POC.
 
 ## WAE Current State Queries (Q3)
-- Does `argMax` query return expected state? _see validate.yml run_
-- Observed freshness lag: _~1–2 min typical_
-- Query response time (p50, p95): _see latency table below_
+- Does `argMax` query return expected state? Yes. Variant B returned the expected latest state for both synthetic monitor results.
+- Observed freshness lag: about 2 minutes in the validation run before data became queryable.
+- Query response time (p50, p95): immediate sample from compare run showed `GET /status` at 566ms and `GET /history/:id` at 349ms.
 
 ## Variant A vs B Latency (Q4)
 | Endpoint | Variant A (D1+DO) | Variant B (WAE) |
@@ -52,10 +52,17 @@ _At 10 monitors × 4 probes × 1 min interval = 57 600 checks/day_
 - Variant B history rows (cf-web, 24h): 1
 
 ## Recommendation
-_To be filled after reviewing placement validation results and latency data._
+Choose **Variant A (D1 + Durable Objects)** for the full V4 implementation.
 
 Preliminary assessment:
 - **Variant A (D1+DO)** provides strong consistency, immediate query results, and familiar SQL tooling.
   The DO acts as an always-fresh in-memory cache for current state, eliminating read latency on `/status`.
 - **Variant B (WAE)** offers zero schema management and potential cost savings at high write volume,
   but the ~1–2 min ingestion lag makes it unsuitable for real-time status views.
+
+Final assessment:
+- Q1/Q2 do not support relying on the current placement-host approach for predictable US-East execution in this POC.
+- Q3/Q5 confirm WAE can answer the required queries, but with ingestion delay and higher query latency.
+- Q4 favors Variant A on both tested read endpoints.
+- Q6 favors Variant A for operational clarity when current-state reads matter more than schema-free writes.
+- Q7 shows both variants remain near-zero cost at POC scale, so latency and correctness dominate the decision.

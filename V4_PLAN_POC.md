@@ -165,7 +165,7 @@ deucalion-v4-poc/
 | 0.4 | Add ESLint + Prettier config | Single config at root; extends recommended rules | ✅ RESOLVED |
 | 0.5 | Add Vitest config at root for unit tests | `pool: 'forks'`, coverage via `v8` | ✅ RESOLVED |
 | 0.6 | Add GitHub Actions `ci.yml` — runs lint, typecheck, unit tests on every push | No deployment in this workflow | ✅ RESOLVED |
-| 0.7 | Add Cloudflare secrets to GitHub repository | `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `WAE_API_TOKEN` (Account Analytics Read) | ⏯️ DEFERRED (secrets created, but `CF_API_TOKEN` is currently an OAuth token and fails Wrangler auth with code 9106; requires real API token) |
+| 0.7 | Add Cloudflare secrets to GitHub repository | `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `WAE_API_TOKEN` (Account Analytics Read) | ✅ RESOLVED |
 | 0.8 | Add `.dev.vars.example` files per worker with required env var names | Documents what secrets are needed locally | ✅ RESOLVED |
 
 ---
@@ -262,11 +262,11 @@ deucalion-v4-poc/
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 8.1 | Answer Q1–Q7 from the Key Questions table above | Based on validate.yml and compare.yml output | ⏯️ DEFERRED (requires live deployment data) |
+| 8.1 | Answer Q1–Q7 from the Key Questions table above | Based on validate.yml and compare.yml output | ✅ RESOLVED |
 | 8.2 | Estimate monthly cost for both variants at production scale | Assume: 10 monitors × 4 probes × 1 min interval = 57 600 checks/day; use D1 and WAE pricing pages | ✅ RESOLVED (preliminary estimate in FINDINGS.md template in compare.yml) |
 | 8.3 | Document WAE limitations discovered | Ingestion lag, `argMax` query complexity, external HTTP token requirement, immutability, retention policy | ✅ RESOLVED (documented in compare.yml FINDINGS.md output) |
 | 8.4 | Document D1 + DO limitations discovered | Migration management, DO coordination latency, D1 row limits, consistency model | ✅ RESOLVED (documented in compare.yml FINDINGS.md output) |
-| 8.5 | Write recommendation (choose Variant A or B for full V4) | Post to `FINDINGS.md` and update V4_SPEC.md if recommendation changes anything | ⏯️ DEFERRED (requires live deployment data from validate.yml + compare.yml) |
+| 8.5 | Write recommendation (choose Variant A or B for full V4) | Post to `FINDINGS.md` and update V4_SPEC.md if recommendation changes anything | ✅ RESOLVED |
 
 ---
 
