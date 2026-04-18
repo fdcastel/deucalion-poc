@@ -1,0 +1,3 @@
+PROBE_WORKER_URL=http://localhost:8787
+VARIANT_A_URL=http://localhost:8788
+VARIANT_B_URL=http://localhost:8789

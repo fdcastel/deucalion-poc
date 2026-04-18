@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/probe-core" },
+    { "path": "workers/probe" },
+    { "path": "workers/variant-a" },
+    { "path": "workers/variant-b" },
+    { "path": "workers/scheduler" }
+  ]
+}
