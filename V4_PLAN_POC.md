@@ -323,56 +323,56 @@ Create this file in the repo root after the comparison workflow runs:
 **Approach:**
 - A GitHub Actions matrix workflow (`placement-sweep.yml`) deploys one probe Worker per city simultaneously (30 parallel jobs, `max-parallel: 10`).
 - Each Worker is named `deucalion-poc-probe-sweep-{iata}` and carries the city-specific placement hint.
-- After a brief warmup, the workflow calls `/health` 10 times and records the observed `colo`.
+- After a brief warmup, the workflow calls `/health` 10 times and records placement evidence from `cf-placement` (with `CF-Ray`/`request.cf.colo` fallback and explicit signal quality reporting).
 - All 30 Workers are deleted after testing.
 - Results are committed to `PLACEMENT_SWEEP_RESULTS.md`.
 
 #### 9.0 — Placement hint reference table
 
-Canonical input to the sweep. Derived from `tmp/br-placement-hints-results.csv`. Prefer L7 (`hostname`) over L4 (`host`); use L4 when L7 is the only confirmed working type. São José dos Campos (SJK) excluded — no working external host found.
+Canonical input to the sweep. Derived from `research/br-placement-hints-results.csv` and `research/placement-hints.json`, then written to `.github/placement-hints.json`. Selection now uses reachability plus risk scoring (single-IP likelihood, DNS/CDN signals, and header checks). São José dos Campos (SJK) remains excluded due no reachable external candidates.
 
 | City | IATA | Hint type | Hint value | Source |
 |------|------|-----------|------------|--------|
-| Americana | QWJ | `hostname` | `unisal.br` | Centro Universitário Salesiano |
-| Araçatuba | ARU | `hostname` | `unesp.br` | UNESP – Araçatuba campus |
-| Belém | BEL | `hostname` | `ufpa.br` | UFPA |
-| Belo Horizonte | CNF | `hostname` | `ufmg.br` | UFMG |
-| Blumenau | BNU | `host` | `furb.br:443` | FURB (L7 fails; L4 only) |
-| Brasília | BSB | `hostname` | `unb.br` | UnB |
-| Caçador | CFC | `hostname` | `uniarp.edu.br` | UNIARP |
-| Campinas | VCP | `hostname` | `unicamp.br` | Unicamp |
-| Campos dos Goytacazes | CAW | `hostname` | `uenf.br` | UENF |
-| Chapecó | XAP | `host` | `uffs.edu.br:443` | UFFS (L7 fails; L4 only) |
-| Cuiabá | CGB | `hostname` | `ufmt.br` | UFMT |
-| Curitiba | CWB | `hostname` | `ufpr.br` | UFPR |
-| Florianópolis | FLN | `hostname` | `ufsc.br` | UFSC |
-| Fortaleza | FOR | `hostname` | `ufc.br` | UFC |
-| Goiânia | GYN | `hostname` | `ufg.br` | UFG |
-| Joinville | JOI | `hostname` | `univille.edu.br` | UNIVILLE |
-| Juazeiro do Norte | JDO | `hostname` | `urca.br` | URCA |
-| Manaus | MAO | `hostname` | `ufam.edu.br` | UFAM |
-| Palmas | PMW | `hostname` | `uft.edu.br` | UFT |
-| Porto Alegre | POA | `hostname` | `ufrgs.br` | UFRGS |
-| Recife | REC | `host` | `tjpe.jus.br:443` | TJPE (UFPE unreachable; L4 only) |
-| Ribeirão Preto | RAO | `hostname` | `fmrp.usp.br` | USP Ribeirão Preto |
-| Rio de Janeiro | GIG | `hostname` | `ufrj.br` | UFRJ |
-| Salvador | SSA | `hostname` | `ufba.br` | UFBA |
-| São José do Rio Preto | SJP | `host` | `famerp.br:443` | FAMERP (L7 fails; L4 only) |
-| São Paulo | GRU | `hostname` | `usp.br` | USP |
-| Sorocaba | SOD | `hostname` | `uniso.br` | UNISO |
-| Timbó | NVT | `hostname` | `univali.br` | UNIVALI |
-| Uberlândia | UDI | `hostname` | `ufu.br` | UFU |
-| Vitória | VIX | `hostname` | `ufes.br` | UFES |
+| Americana | QWJ | `host` | `unisal.br:443` | Centro Universitário Salesiano - Americana campus |
+| Aracatuba | ARU | `host` | `unesp.br:443` | UNESP - has Aracatuba campus |
+| Belém | BEL | `host` | `ufpa.br:443` | Universidade Federal do Pará - Belém |
+| Belo Horizonte | CNF | `host` | `ufmg.br:443` | UFMG - largest university in MG |
+| Blumenau | BNU | `host` | `furb.br:443` | Universidade Regional de Blumenau |
+| Brasília | BSB | `host` | `unb.br:443` | Universidade de Brasília |
+| Caçador | CFC | `host` | `uniarp.edu.br:443` | Universidade Alto Vale do Rio do Peixe - Caçador |
+| Campinas | VCP | `host` | `prefeitura.sp.gov.br:443` | Prefeitura de Campinas |
+| Campos dos Goytacazes | CAW | `host` | `uenf.br:443` | UENF - state university in Campos |
+| Chapecó | XAP | `host` | `uffs.edu.br:443` | UFFS - federal university, Chapecó campus |
+| Cuiabá | CGB | `host` | `ufmt.br:443` | UFMT - federal university, Cuiabá |
+| Curitiba | CWB | `host` | `ufpr.br:443` | UFPR - major federal university, Curitiba |
+| Florianópolis | FLN | `host` | `ufsc.br:443` | UFSC - federal university, Florianópolis |
+| Fortaleza | FOR | `host` | `ufc.br:443` | UFC - federal university, Fortaleza |
+| Goiânia | GYN | `host` | `ufg.br:443` | UFG - federal university, Goiânia |
+| Joinville | JOI | `host` | `univille.edu.br:443` | UNIVILLE - private university in Joinville |
+| Juazeiro do Norte | JDO | `host` | `urca.br:443` | URCA - state university, Juazeiro do Norte campus |
+| Manaus | MAO | `host` | `ufam.edu.br:443` | UFAM - federal university, Manaus |
+| Palmas | PMW | `host` | `uft.edu.br:443` | UFT - federal university, Palmas |
+| Porto Alegre | POA | `host` | `tjrs.jus.br:443` | Tribunal de Justiça do RS |
+| Recife | REC | `host` | `tjpe.jus.br:443` | Tribunal de Justiça de PE |
+| Ribeirão Preto | RAO | `host` | `fmrp.usp.br:443` | USP Ribeirão Preto - medical school campus |
+| Rio de Janeiro | GIG | `host` | `ufrj.br:443` | UFRJ - major federal university, Rio de Janeiro |
+| Salvador | SSA | `host` | `tjba.jus.br:443` | Tribunal de Justiça da Bahia |
+| São José do Rio Preto | SJP | `host` | `famerp.br:443` | FAMERP - medical school, São José do Rio Preto |
+| São Paulo | GRU | `host` | `usp.br:443` | USP - largest university in Brazil, São Paulo |
+| Sorocaba | SOD | `host` | `uniso.br:443` | UNISO - private university in Sorocaba |
+| Timbó | NVT | `host` | `univali.br:443` | UNIVALI - covers Itajaí/Balneário Camboriú area near Timbó |
+| Uberlândia | UDI | `host` | `ufu.br:443` | UFU - federal university, Uberlândia |
+| Vitória | VIX | `host` | `ufes.br:443` | UFES - federal university, Vitória (Espírito Santo) |
 
 #### Phase 9 tasks
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
 | 9.1 | Add `workers/probe-placement-test/` scaffold | Same source as `workers/probe/src/`; add `wrangler.jsonc.template` with `{{IATA}}`, `{{HINT_TYPE}}`, and `{{HINT_VALUE}}` placeholders; worker name pattern: `deucalion-poc-probe-sweep-{{iata}}` | ✅ RESOLVED |
-| 9.2 | Add `.github/placement-hints.json` | Machine-readable version of the §9.0 table: `[{ "city": "Curitiba", "iata": "CWB", "hintType": "hostname", "hintValue": "ufpr.br" }, ...]`; 30 entries; this is the workflow matrix source | ✅ RESOLVED |
+| 9.2 | Add `.github/placement-hints.json` | Machine-readable version of the §9.0 table: `[{ "city": "Curitiba", "iata": "CWB", "hintType": "host", "hintValue": "ufpr.br:443" }, ...]`; 30 entries; generated from `research/placement-hints.json` | ✅ RESOLVED |
 | 9.3 | Create `.github/workflows/placement-sweep.yml` | `workflow_dispatch` trigger; matrix strategy driven by `placement-hints.json`; `max-parallel: 10` to stay within Cloudflare API rate limits | ✅ RESOLVED |
-| 9.4 | Implement per-city matrix job | Steps: (1) generate `wrangler.jsonc` from template via `envsubst`; (2) `wrangler deploy`; (3) 30 s warmup sleep; (4) `GET /health` 10× with 2 s gaps, capture `colo` from JSON; (5) set job output `{ city, iata, hintType, hintValue, observedColos }`; (6) `wrangler delete --force` cleanup | ✅ RESOLVED |
-| 9.5 | Implement aggregation job | `needs: [sweep]`; reads all matrix outputs; builds summary table (city, hint, observed colo(s), exact-match ✅/❌, consistent ✅/❌ if all 10 calls returned same colo); commits `PLACEMENT_SWEEP_RESULTS.md` to repo | ✅ RESOLVED |
+| 9.4 | Implement per-city matrix job | Steps: (1) generate `wrangler.jsonc` from template via `envsubst`; (2) `wrangler deploy`; (3) 30 s warmup sleep; (4) read Workers service placement status; (5) `GET /health` 10× with 2 s gaps, capture `cf-placement` + ingress `colo`; (6) emit `{ city, iata, hintType, hintValue, observedPlacementColos, observedIngressColos, signalSources }`; (7) `wrangler delete --force` cleanup | ✅ RESOLVED |
+| 9.5 | Implement aggregation job | `needs: [sweep]`; reads all matrix outputs; builds summary table including placement status and signal quality (`cf-placement x/10`); computes exact/partial/loose/failure thresholds and commits `PLACEMENT_SWEEP_RESULTS.md` | ✅ RESOLVED |
 | 9.6 | Define and document success criteria | Exact match: all 10 observed colos == expected IATA; Partial match: majority of colos match IATA; Loose match: observed colo is any known Brazilian PoP; Failure: non-Brazilian or mixed. Record pass rates at each threshold. | ✅ RESOLVED |
 | 9.7 | Update `FINDINGS.md` Q1/Q2 section with sweep results | Replace the single-city `CWB` result from Phase 6 with the full 30-city table and revised verdict on `placement.host`/`hostname` reliability | ✅ RESOLVED |
 
