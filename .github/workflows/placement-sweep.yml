@@ -1,0 +1,202 @@
+name: Placement Sweep
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  WORKERS_SUBDOMAIN: ${{ vars.CF_WORKERS_SUBDOMAIN }}
+
+jobs:
+  prepare-matrix:
+    name: Prepare matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build matrix from placement-hints.json
+        id: matrix
+        run: |
+          MATRIX_JSON=$(jq -c '{include: .}' .github/placement-hints.json)
+          echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
+
+  sweep:
+    name: Sweep ${{ matrix.iata }}
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CITY: ${{ matrix.city }}
+      IATA: ${{ matrix.iata }}
+      EXPECTED_COLO: ${{ matrix.expectedColo }}
+      HINT_TYPE: ${{ matrix.hintType }}
+      HINT_VALUE: ${{ matrix.hintValue }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate wrangler.jsonc from template
+        working-directory: workers/probe-placement-test
+        run: |
+          command -v envsubst >/dev/null || (echo "envsubst is required" && exit 1)
+          export IATA_LOWER=$(echo "$IATA" | tr '[:upper:]' '[:lower:]')
+          envsubst < wrangler.jsonc.template > wrangler.jsonc
+          cat wrangler.jsonc
+
+      - name: Deploy sweep worker
+        working-directory: workers/probe-placement-test
+        run: pnpm wrangler deploy
+
+      - name: Warm up deployment
+        run: sleep 30
+
+      - name: Probe /health 10 times
+        id: probe
+        run: |
+          IATA_LOWER=$(echo "$IATA" | tr '[:upper:]' '[:lower:]')
+          URL="https://deucalion-poc-probe-sweep-${IATA_LOWER}.${WORKERS_SUBDOMAIN}.workers.dev/health"
+          echo "Probing $URL"
+
+          COLLECTED=()
+          for _ in $(seq 1 10); do
+            BODY=$(curl -sf "$URL")
+            COLO=$(echo "$BODY" | python3 -c "import sys,json; print(json.load(sys.stdin).get('colo','unknown'))")
+            COLLECTED+=("$COLO")
+            sleep 2
+          done
+
+          OBSERVED_JSON=$(printf '%s\n' "${COLLECTED[@]}" | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))")
+          echo "observed_json=$OBSERVED_JSON" >> "$GITHUB_OUTPUT"
+
+      - name: Write per-city result artifact
+        run: |
+          mkdir -p out
+          cat > out/result.json <<EOF
+          {
+            "city": "$CITY",
+            "iata": "$IATA",
+            "expectedColo": "$EXPECTED_COLO",
+            "hintType": "$HINT_TYPE",
+            "hintValue": "$HINT_VALUE",
+            "observedColos": ${{ steps.probe.outputs.observed_json }}
+          }
+          EOF
+
+      - name: Upload per-city result
+        uses: actions/upload-artifact@v4
+        with:
+          name: placement-sweep-${{ matrix.iata }}
+          path: out/result.json
+
+      - name: Delete sweep worker
+        if: always()
+        working-directory: workers/probe-placement-test
+        run: |
+          pnpm wrangler delete --name "deucalion-poc-probe-sweep-$(echo "$IATA" | tr '[:upper:]' '[:lower:]')" --force || true
+
+  aggregate:
+    name: Aggregate sweep results
+    needs: sweep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all sweep artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: sweep-artifacts
+          pattern: placement-sweep-*
+
+      - name: Build PLACEMENT_SWEEP_RESULTS.md
+        run: |
+          find sweep-artifacts -name result.json -print0 | xargs -0 jq -s '.' > all-results.json
+
+          python3 - <<'PY'
+          import json
+          from collections import Counter
+
+          with open('all-results.json', 'r', encoding='utf-8') as f:
+            rows = json.load(f)
+
+          rows = sorted(rows, key=lambda r: r['iata'])
+
+          exact = 0
+          partial = 0
+          loose = 0
+          failure = 0
+
+          md = []
+          md.append('# Placement Sweep Results')
+          md.append('')
+          md.append('| City | IATA | Hint | Observed colos | Exact match | Partial match | Loose match |')
+          md.append('|------|------|------|----------------|------------|---------------|-------------|')
+
+          for r in rows:
+            observed = r.get('observedColos', [])
+            expected = r['expectedColo']
+            counts = Counter(observed)
+            majority = counts.most_common(1)[0][0] if counts else 'unknown'
+
+            exact_match = len(observed) > 0 and all(c == expected for c in observed)
+            partial_match = (not exact_match) and (majority == expected)
+            loose_match = any((len(c) == 3 and c.isalpha()) for c in observed)
+
+            if exact_match:
+              exact += 1
+            elif partial_match:
+              partial += 1
+            elif loose_match:
+              loose += 1
+            else:
+              failure += 1
+
+            hint = f"{r['hintType']}={r['hintValue']}"
+            obs = ', '.join(observed) if observed else '(none)'
+            md.append(
+              f"| {r['city']} | {r['iata']} | `{hint}` | `{obs}` | {'✅' if exact_match else '❌'} | {'✅' if partial_match else '❌'} | {'✅' if loose_match else '❌'} |"
+            )
+
+          total = len(rows)
+          md.append('')
+          md.append('## Aggregate pass rates')
+          md.append('')
+          md.append(f'- Total cities tested: {total}')
+          md.append(f'- Exact match pass rate: {exact}/{total} ({(100.0 * exact / total):.1f}%)')
+          md.append(f'- Partial match pass rate: {partial}/{total} ({(100.0 * partial / total):.1f}%)')
+          md.append(f'- Loose match pass rate: {loose}/{total} ({(100.0 * loose / total):.1f}%)')
+          md.append(f'- Failures: {failure}/{total} ({(100.0 * failure / total):.1f}%)')
+          md.append('')
+          md.append('## Criteria')
+          md.append('- Exact match: all 10 observed colos equal expected IATA.')
+          md.append('- Partial match: majority colo equals expected IATA.')
+          md.append('- Loose match: observed colos are valid 3-letter colo codes but not matching expected IATA.')
+          md.append('- Failure: no valid observed colo code or empty observations.')
+
+          with open('PLACEMENT_SWEEP_RESULTS.md', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(md) + '\n')
+          PY
+
+      - name: Commit PLACEMENT_SWEEP_RESULTS.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PLACEMENT_SWEEP_RESULTS.md
+          git commit -m "chore: update placement sweep results" || echo "No changes to commit"
+          git push

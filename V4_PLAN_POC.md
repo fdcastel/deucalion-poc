@@ -368,13 +368,13 @@ Canonical input to the sweep. Derived from `tmp/br-placement-hints-results.csv`.
 
 | # | Task | Notes | Status |
 |---|------|-------|--------|
-| 9.1 | Add `workers/probe-placement-test/` scaffold | Same source as `workers/probe/src/`; add `wrangler.jsonc.template` with `{{IATA}}`, `{{HINT_TYPE}}`, and `{{HINT_VALUE}}` placeholders; worker name pattern: `deucalion-poc-probe-sweep-{{iata}}` | ❌ OPEN |
-| 9.2 | Add `.github/placement-hints.json` | Machine-readable version of the §9.0 table: `[{ "city": "Curitiba", "iata": "CWB", "hintType": "hostname", "hintValue": "ufpr.br" }, ...]`; 30 entries; this is the workflow matrix source | ❌ OPEN |
-| 9.3 | Create `.github/workflows/placement-sweep.yml` | `workflow_dispatch` trigger; matrix strategy driven by `placement-hints.json`; `max-parallel: 10` to stay within Cloudflare API rate limits | ❌ OPEN |
-| 9.4 | Implement per-city matrix job | Steps: (1) generate `wrangler.jsonc` from template via `envsubst`; (2) `wrangler deploy`; (3) 30 s warmup sleep; (4) `GET /health` 10× with 2 s gaps, capture `colo` from JSON; (5) set job output `{ city, iata, hintType, hintValue, observedColos }`; (6) `wrangler delete --force` cleanup | ❌ OPEN |
-| 9.5 | Implement aggregation job | `needs: [sweep]`; reads all matrix outputs; builds summary table (city, hint, observed colo(s), exact-match ✅/❌, consistent ✅/❌ if all 10 calls returned same colo); commits `PLACEMENT_SWEEP_RESULTS.md` to repo | ❌ OPEN |
-| 9.6 | Define and document success criteria | Exact match: all 10 observed colos == expected IATA; Partial match: majority of colos match IATA; Loose match: observed colo is any known Brazilian PoP; Failure: non-Brazilian or mixed. Record pass rates at each threshold. | ❌ OPEN |
-| 9.7 | Update `FINDINGS.md` Q1/Q2 section with sweep results | Replace the single-city `CWB` result from Phase 6 with the full 30-city table and revised verdict on `placement.host`/`hostname` reliability | ❌ OPEN |
+| 9.1 | Add `workers/probe-placement-test/` scaffold | Same source as `workers/probe/src/`; add `wrangler.jsonc.template` with `{{IATA}}`, `{{HINT_TYPE}}`, and `{{HINT_VALUE}}` placeholders; worker name pattern: `deucalion-poc-probe-sweep-{{iata}}` | 🔧 IN PROGRESS |
+| 9.2 | Add `.github/placement-hints.json` | Machine-readable version of the §9.0 table: `[{ "city": "Curitiba", "iata": "CWB", "hintType": "hostname", "hintValue": "ufpr.br" }, ...]`; 30 entries; this is the workflow matrix source | 🔧 IN PROGRESS |
+| 9.3 | Create `.github/workflows/placement-sweep.yml` | `workflow_dispatch` trigger; matrix strategy driven by `placement-hints.json`; `max-parallel: 10` to stay within Cloudflare API rate limits | 🔧 IN PROGRESS |
+| 9.4 | Implement per-city matrix job | Steps: (1) generate `wrangler.jsonc` from template via `envsubst`; (2) `wrangler deploy`; (3) 30 s warmup sleep; (4) `GET /health` 10× with 2 s gaps, capture `colo` from JSON; (5) set job output `{ city, iata, hintType, hintValue, observedColos }`; (6) `wrangler delete --force` cleanup | 🔧 IN PROGRESS |
+| 9.5 | Implement aggregation job | `needs: [sweep]`; reads all matrix outputs; builds summary table (city, hint, observed colo(s), exact-match ✅/❌, consistent ✅/❌ if all 10 calls returned same colo); commits `PLACEMENT_SWEEP_RESULTS.md` to repo | 🔧 IN PROGRESS |
+| 9.6 | Define and document success criteria | Exact match: all 10 observed colos == expected IATA; Partial match: majority of colos match IATA; Loose match: observed colo is any known Brazilian PoP; Failure: non-Brazilian or mixed. Record pass rates at each threshold. | 🔧 IN PROGRESS |
+| 9.7 | Update `FINDINGS.md` Q1/Q2 section with sweep results | Replace the single-city `CWB` result from Phase 6 with the full 30-city table and revised verdict on `placement.host`/`hostname` reliability | ⏯️ DEFERRED (depends on first successful `placement-sweep.yml` run output) |
 
 **Sequence:** 9.1 → 9.2 → 9.3 → 9.4 → 9.5 → 9.6 → 9.7. Workflow prerequisites already satisfied by Phase 0.7 credentials.
 
