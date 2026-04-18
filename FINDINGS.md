@@ -4,9 +4,16 @@
 > Context: after placement-hint refresh
 
 ## Placement Validation (Q1, Q2)
-- Observed colos for `probe-us-east` with `placement.host: cloudflare.com:443`: _see validate.yml run output_
-- Expected: EWR, IAD, ORD, or similar US-East POPs
-- Verdict: _to be filled after validate.yml run_
+- Observed colos for `probe-us-east` with `placement.host: cloudflare.com:443`: see latest `validate.yml` run output.
+- Phase 9 sweep (latest successful rerun): `PLACEMENT_SWEEP_RESULTS.md`
+  - Exact match pass rate: `0/30` (0.0%)
+  - Partial match pass rate: `1/30` (3.3%)
+  - Loose match pass rate: `17/30` (56.7%)
+  - Failures: `30/30` (100.0%) under the current strict failure rule (`mixed` counts as failure)
+- Signal notes:
+  - `cf-placement` was observed on all samples (`cf-placement 10/10`), but many rows include `unknown` placement colo parses, creating mixed results.
+  - Ingress POP (`request.cf.colo`) is tracked separately and often differs from placement-derived colos.
+- Verdict: host-based hints showed limited country-level steering improvement (loose matches improved materially vs previous runs), but remained unreliable for deterministic city-level placement.
 
 ## WAE Current State Queries (Q3)
 - Does `argMax` query return expected state? _see validate.yml run_
@@ -52,10 +59,9 @@ _At 10 monitors × 4 probes × 1 min interval = 57 600 checks/day_
 - Variant B history rows (cf-web, 24h): 2
 
 ## Recommendation
-_To be filled after reviewing placement validation results and latency data._
+Choose **Variant A (D1 + Durable Objects)** for full V4.
 
-Preliminary assessment:
-- **Variant A (D1+DO)** provides strong consistency, immediate query results, and familiar SQL tooling.
-  The DO acts as an always-fresh in-memory cache for current state, eliminating read latency on `/status`.
-- **Variant B (WAE)** offers zero schema management and potential cost savings at high write volume,
-  but the ~1–2 min ingestion lag makes it unsuitable for real-time status views.
+Rationale after reruns:
+- Q1/Q2: placement hints remain too noisy for deterministic city-level control in this POC setup.
+- Q4: Variant A remains faster on tested read paths.
+- Q3/Q5: Variant B works functionally but adds ingestion lag and positional query complexity.
