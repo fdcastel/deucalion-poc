@@ -74,21 +74,21 @@ jobs:
       # ── Deploy scheduler ─────────────────────────────────────────────────
       - name: Set PROBE_WORKER_URL secret on scheduler
         working-directory: workers/scheduler
-        run: echo "https://deucalion-poc-probe.${{ secrets.CF_ACCOUNT_ID }}.workers.dev" | pnpm wrangler secret put PROBE_WORKER_URL
+        run: echo "https://deucalion-poc-probe.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev" | pnpm wrangler secret put PROBE_WORKER_URL
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
 
       - name: Set VARIANT_A_URL secret on scheduler
         working-directory: workers/scheduler
-        run: echo "https://deucalion-poc-variant-a.${{ secrets.CF_ACCOUNT_ID }}.workers.dev" | pnpm wrangler secret put VARIANT_A_URL
+        run: echo "https://deucalion-poc-variant-a.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev" | pnpm wrangler secret put VARIANT_A_URL
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
 
       - name: Set VARIANT_B_URL secret on scheduler
         working-directory: workers/scheduler
-        run: echo "https://deucalion-poc-variant-b.${{ secrets.CF_ACCOUNT_ID }}.workers.dev" | pnpm wrangler secret put VARIANT_B_URL
+        run: echo "https://deucalion-poc-variant-b.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev" | pnpm wrangler secret put VARIANT_B_URL
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
@@ -104,36 +104,36 @@ jobs:
       - name: Smoke test — variant-a /health
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://deucalion-poc-variant-a.${{ secrets.CF_ACCOUNT_ID }}.workers.dev/health")
+            "https://deucalion-poc-variant-a.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev/health")
           [ "$STATUS" = "200" ] || (echo "variant-a /health returned $STATUS" && exit 1)
 
       - name: Smoke test — variant-a /status
         run: |
           BODY=$(curl -sf \
-            "https://deucalion-poc-variant-a.${{ secrets.CF_ACCOUNT_ID }}.workers.dev/status")
+            "https://deucalion-poc-variant-a.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev/status")
           echo "$BODY" | grep -q "monitors" || (echo "variant-a /status missing 'monitors' key" && exit 1)
 
       - name: Smoke test — variant-a /history/cf-web
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://deucalion-poc-variant-a.${{ secrets.CF_ACCOUNT_ID }}.workers.dev/history/cf-web")
+            "https://deucalion-poc-variant-a.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev/history/cf-web")
           [ "$STATUS" = "200" ] || (echo "variant-a /history/cf-web returned $STATUS" && exit 1)
 
       # ── Smoke tests — Variant B ──────────────────────────────────────────
       - name: Smoke test — variant-b /health
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://deucalion-poc-variant-b.${{ secrets.CF_ACCOUNT_ID }}.workers.dev/health")
+            "https://deucalion-poc-variant-b.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev/health")
           [ "$STATUS" = "200" ] || (echo "variant-b /health returned $STATUS" && exit 1)
 
       - name: Smoke test — variant-b /status
         run: |
           BODY=$(curl -sf \
-            "https://deucalion-poc-variant-b.${{ secrets.CF_ACCOUNT_ID }}.workers.dev/status")
+            "https://deucalion-poc-variant-b.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev/status")
           echo "$BODY" | grep -q "monitors" || (echo "variant-b /status missing 'monitors' key" && exit 1)
 
       - name: Smoke test — variant-b /history/cf-web
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            "https://deucalion-poc-variant-b.${{ secrets.CF_ACCOUNT_ID }}.workers.dev/history/cf-web")
+            "https://deucalion-poc-variant-b.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev/history/cf-web")
           [ "$STATUS" = "200" ] || (echo "variant-b /history/cf-web returned $STATUS" && exit 1)

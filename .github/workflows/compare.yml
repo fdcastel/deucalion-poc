@@ -12,8 +12,8 @@ permissions:
   contents: write
 
 env:
-  VARIANT_A_URL: https://deucalion-poc-variant-a.${{ secrets.CF_ACCOUNT_ID }}.workers.dev
-  VARIANT_B_URL: https://deucalion-poc-variant-b.${{ secrets.CF_ACCOUNT_ID }}.workers.dev
+  VARIANT_A_URL: https://deucalion-poc-variant-a.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev
+  VARIANT_B_URL: https://deucalion-poc-variant-b.${{ vars.CF_WORKERS_SUBDOMAIN }}.workers.dev
 
 jobs:
   compare:
