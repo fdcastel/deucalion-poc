@@ -1,0 +1,11 @@
+{
+  "name": "deucalion-poc-variant-b",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-12-01",
+  "analytics_engine_datasets": [
+    {
+      "binding": "CHECK_RESULTS",
+      "dataset": "poc_check_results"
+    }
+  ]
+}
