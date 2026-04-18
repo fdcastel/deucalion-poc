@@ -44,7 +44,19 @@ importers:
         specifier: workspace:*
         version: link:../../packages/probe-core
 
+  workers/scheduler:
+    dependencies:
+      '@deucalion/probe-core':
+        specifier: workspace:*
+        version: link:../../packages/probe-core
+
   workers/variant-a:
+    dependencies:
+      '@deucalion/probe-core':
+        specifier: workspace:*
+        version: link:../../packages/probe-core
+
+  workers/variant-b:
     dependencies:
       '@deucalion/probe-core':
         specifier: workspace:*
