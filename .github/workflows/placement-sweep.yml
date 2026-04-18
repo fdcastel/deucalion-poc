@@ -142,6 +142,8 @@ jobs:
           loose = 0
           failure = 0
 
+          brazilian_colos = {r['expectedColo'] for r in rows}
+
           md = []
           md.append('# Placement Sweep Results')
           md.append('')
@@ -156,7 +158,8 @@ jobs:
 
             exact_match = len(observed) > 0 and all(c == expected for c in observed)
             partial_match = (not exact_match) and (majority == expected)
-            loose_match = any((len(c) == 3 and c.isalpha()) for c in observed)
+            loose_match = any(c in brazilian_colos for c in observed)
+            only_foreign = len(observed) > 0 and all(c not in brazilian_colos for c in observed)
 
             if exact_match:
               exact += 1
@@ -172,6 +175,8 @@ jobs:
             md.append(
               f"| {r['city']} | {r['iata']} | `{hint}` | `{obs}` | {'✅' if exact_match else '❌'} | {'✅' if partial_match else '❌'} | {'✅' if loose_match else '❌'} |"
             )
+            if only_foreign:
+              md.append(f"|  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |")
 
           total = len(rows)
           md.append('')
@@ -186,8 +191,8 @@ jobs:
           md.append('## Criteria')
           md.append('- Exact match: all 10 observed colos equal expected IATA.')
           md.append('- Partial match: majority colo equals expected IATA.')
-          md.append('- Loose match: observed colos are valid 3-letter colo codes but not matching expected IATA.')
-          md.append('- Failure: no valid observed colo code or empty observations.')
+          md.append('- Loose match: at least one observed colo is a known Brazilian PoP IATA, even if not the expected city.')
+          md.append('- Failure: no observed Brazilian colo for the city (for example, only foreign colos or empty observations).')
 
           with open('PLACEMENT_SWEEP_RESULTS.md', 'w', encoding='utf-8') as f:
             f.write('\n'.join(md) + '\n')
