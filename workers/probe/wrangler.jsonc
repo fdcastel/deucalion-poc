@@ -3,7 +3,6 @@
   "main": "src/index.ts",
   "compatibility_date": "2024-12-01",
   "placement": {
-    "mode": "smart",
-    "hint": "cloudflare.com:443"
+    "host": "cloudflare.com:443"
   }
 }

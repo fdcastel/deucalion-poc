@@ -6,7 +6,7 @@
     {
       "binding": "DB",
       "database_name": "deucalion-poc-db",
-      "database_id": "TO_BE_REPLACED",
+      "database_id": "405249f0-083a-4b7a-9c31-f78d83e74ca1",
       "migrations_dir": "../../infra/migrations"
     }
   ],
