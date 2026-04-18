@@ -44,6 +44,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/probe-core
 
+  workers/variant-a:
+    dependencies:
+      '@deucalion/probe-core':
+        specifier: workspace:*
+        version: link:../../packages/probe-core
+
 packages:
 
   '@cloudflare/kv-asset-handler@0.3.4':
