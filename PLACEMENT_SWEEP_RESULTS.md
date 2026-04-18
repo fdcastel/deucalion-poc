@@ -2,73 +2,73 @@
 
 | City | IATA | Hint | Placement status | Signal quality | Observed placement colos | Observed ingress colos | Exact match | Partial match | Loose match | Consistent | Failure |
 |------|------|------|------------------|----------------|---------------------------|----------------------|------------|---------------|-------------|------------|---------|
-| Aracatuba | ARU | `hostname=unesp.br` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, DFW, unknown, unknown, DFW, DFW, DFW, DFW, DFW, DFW` | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Belem | BEL | `hostname=ufpa.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Blumenau | BNU | `host=furb.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, unknown, unknown, GRU, unknown, unknown, GRU, unknown, unknown, GRU` | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Aracatuba | ARU | `host=unesp.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, GRU, GRU, unknown, GRU, GRU, GRU, unknown, GRU` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
 |  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
-| Brasilia | BSB | `hostname=unb.br` | `unknown` | cf-placement 10/10; source=cf-placement | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Campos dos Goytacazes | CAW | `hostname=uenf.br` | `unknown` | cf-placement 10/10; source=cf-placement | `SJC, unknown, unknown, unknown, unknown, SJC, unknown, unknown, unknown, SJC` | `SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Cacador | CFC | `hostname=uniarp.edu.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Cuiaba | CGB | `hostname=ufmt.br` | `unknown` | cf-placement 10/10; source=cf-placement | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Belo Horizonte | CNF | `hostname=ufmg.br` | `unknown` | cf-placement 10/10; source=cf-placement | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Curitiba | CWB | `hostname=ufpr.br` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, unknown, unknown, SJC, SJC, unknown, SJC, unknown, SJC, SJC` | `SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Florianopolis | FLN | `hostname=ufsc.br` | `unknown` | cf-placement 10/10; source=cf-placement | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Fortaleza | FOR | `hostname=ufc.br` | `unknown` | cf-placement 10/10; source=cf-placement | `DFW, unknown, DFW, DFW, unknown, unknown, DFW, DFW, unknown, unknown` | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Rio de Janeiro | GIG | `hostname=ufrj.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Sao Paulo | GRU | `hostname=usp.br` | `unknown` | cf-placement 10/10; source=cf-placement | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Goiania | GYN | `hostname=ufg.br` | `unknown` | cf-placement 10/10; source=cf-placement | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, unknown, LAX` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Juazeiro do Norte | JDO | `hostname=urca.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Joinville | JOI | `hostname=univille.edu.br` | `unknown` | cf-placement 10/10; source=cf-placement | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, unknown, LAX` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Manaus | MAO | `hostname=ufam.edu.br` | `unknown` | cf-placement 10/10; source=cf-placement | `ORD, ORD, ORD, ORD, unknown, ORD, ORD, ORD, ORD, ORD` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Timbo | NVT | `hostname=univali.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Palmas | PMW | `hostname=uft.edu.br` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, GRU, GRU, GRU, GRU, GRU, unknown, GRU, GRU, GRU` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Belém | BEL | `host=ufpa.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GIG, GIG, GIG, unknown, GIG, GIG, GIG, GIG, GIG, unknown` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
 |  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
-| Porto Alegre | POA | `hostname=ufrgs.br` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, ORD, unknown, ORD, ORD, unknown, unknown, ORD, ORD, unknown` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Americana | QWJ | `hostname=unisal.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Ribeirao Preto | RAO | `hostname=fmrp.usp.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Recife | REC | `host=tjpe.jus.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, GRU, GRU, unknown, GRU, unknown, GRU, GRU, GRU` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Blumenau | BNU | `host=furb.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, unknown, GRU, GRU, GRU, GRU, unknown, GRU, GRU` | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | ❌ | ❌ | ✅ | ❌ | ✅ |
 |  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
-| Sao Jose do Rio Preto | SJP | `host=famerp.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, unknown, GIG, unknown, GIG, unknown, GIG, unknown, GIG, GIG` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Brasília | BSB | `host=unb.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, GRU, GRU, GRU, GRU, unknown, GRU, GRU, GRU, GRU` | `SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC` | ❌ | ❌ | ✅ | ❌ | ✅ |
 |  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
-| Sorocaba | SOD | `hostname=uniso.br` | `unknown` | cf-placement 10/10; source=cf-placement | `SJC, SJC, unknown, unknown, SJC, SJC, unknown, unknown, unknown, unknown` | `SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC` | ❌ | ❌ | ❌ | ❌ | ✅ |
-|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Salvador | SSA | `hostname=ufba.br` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, GIG, unknown, unknown, GIG, GIG, GIG, GIG, GIG, GIG` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Campos dos Goytacazes | CAW | `host=uenf.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GIG, GIG, GIG, GIG, GIG, unknown, GIG, unknown, GIG, GIG` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ✅ | ❌ | ✅ |
 |  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
-| Uberlandia | UDI | `hostname=ufu.br` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, DFW, unknown, unknown, DFW, DFW, unknown, DFW, DFW, DFW` | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Caçador | CFC | `host=uniarp.edu.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, GRU, unknown, GRU, GRU, unknown, GRU, GRU, unknown, unknown` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Cuiabá | CGB | `host=ufmt.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
 |  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Campinas | VCP | `hostname=unicamp.br` | `unknown` | cf-placement 10/10; source=cf-placement | `SJC, unknown, SJC, SJC, SJC, SJC, SJC, unknown, SJC, SJC` | `SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC` | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Belo Horizonte | CNF | `host=ufmg.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, unknown, GIG, GIG, GIG, GIG, unknown, GIG, GIG, unknown` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Curitiba | CWB | `host=ufpr.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, unknown` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ❌ | ❌ | ✅ |
 |  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Vitoria | VIX | `hostname=ufes.br` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Florianópolis | FLN | `host=ufsc.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `ORD, unknown, ORD, ORD, ORD, ORD, unknown, ORD, ORD, ORD` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ❌ | ❌ | ✅ |
 |  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
-| Chapeco | XAP | `host=uffs.edu.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, GRU, unknown, GRU, GRU, unknown, unknown, GRU, GRU, GRU` | `DFW, ORD, DFW, DFW, DFW, DFW, ORD, DFW, DFW, ORD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+| Fortaleza | FOR | `host=ufc.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `LAX, LAX, LAX, LAX, LAX, LAX, unknown, LAX, LAX, LAX` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ❌ | ❌ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Rio de Janeiro | GIG | `host=ufrj.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, GIG, GIG, GIG, GIG, GIG, GIG, GIG, GIG, GIG` | `SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC` | ❌ | ✅ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| São Paulo | GRU | `host=usp.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GIG, GIG, GIG, GIG, unknown, GIG, GIG, unknown, GIG, GIG` | `DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW, DFW` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Goiânia | GYN | `host=ufg.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ❌ | ✅ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Juazeiro do Norte | JDO | `host=urca.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Joinville | JOI | `host=univille.edu.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ❌ | ✅ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Manaus | MAO | `host=ufam.edu.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `SEA, SEA, SEA, SEA, SEA, SEA, SEA, SEA, SEA, SEA` | `SEA, SEA, SEA, SEA, SEA, SEA, SEA, SEA, SEA, SEA` | ❌ | ❌ | ❌ | ✅ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Timbó | NVT | `host=univali.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, GRU, unknown, GRU, unknown, GRU, GRU, GRU, unknown` | `LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX, LAX` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Palmas | PMW | `host=uft.edu.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Porto Alegre | POA | `host=tjrs.jus.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `ORD, ORD, ORD, ORD, ORD, ORD, unknown, ORD, ORD, ORD` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ❌ | ❌ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Americana | QWJ | `host=unisal.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `ORD, ORD, unknown, unknown, ORD, ORD, ORD, ORD, ORD, ORD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ❌ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Ribeirão Preto | RAO | `host=fmrp.usp.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, GRU, GRU, GRU, GRU, GRU, unknown, unknown, GRU` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Recife | REC | `host=tjpe.jus.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, unknown, GRU, unknown, GRU, GRU, GRU, GRU, GRU` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| São José do Rio Preto | SJP | `host=famerp.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, unknown, GRU, GRU, unknown, GRU, GRU, GRU, unknown, GRU` | `SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC, SJC` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Sorocaba | SOD | `host=uniso.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, GRU, GRU, GRU, GRU, unknown, unknown, GRU, GRU` | `ORD, ORD, DFW, ORD, ORD, ORD, DFW, ORD, ORD, DFW` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Salvador | SSA | `host=tjba.jus.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, GRU, GRU, GRU, GRU, unknown, GRU, unknown, GRU, GRU` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Uberlândia | UDI | `host=ufu.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GIG, unknown, unknown, GIG, GIG, GIG, GIG, GIG, GIG, GIG` | `ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD, ORD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Campinas | VCP | `host=prefeitura.sp.gov.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `GRU, GRU, GRU, unknown, GRU, GRU, GRU, GRU, GRU, unknown` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
+|  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
+| Vitória | VIX | `host=ufes.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ❌ | ✅ | ✅ |
+|  |  |  |  | _Note: observed only non-Brazilian colos_ |  |  |  |  |  |  |  |
+| Chapecó | XAP | `host=uffs.edu.br:443` | `unknown` | cf-placement 10/10; source=cf-placement | `unknown, unknown, unknown, GRU, GRU, GRU, GRU, GRU, GRU, GRU` | `IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD, IAD` | ❌ | ❌ | ✅ | ❌ | ✅ |
 |  |  |  |  | _Note: mixed observed placement colos_ |  |  |  |  |  |  |  |
 
 ## Aggregate pass rates
 
 - Total cities tested: 30
 - Exact match pass rate: 0/30 (0.0%)
-- Partial match pass rate: 0/30 (0.0%)
-- Loose match pass rate: 6/30 (20.0%)
+- Partial match pass rate: 1/30 (3.3%)
+- Loose match pass rate: 17/30 (56.7%)
 - Failures: 30/30 (100.0%)
 
 ## Criteria
